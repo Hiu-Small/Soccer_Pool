@@ -234,21 +234,37 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
 
     // Cập nhật vùng hiển thị (TextureRect) để đảm bảo Sprite có kích thước
     menuBgSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)menuBgTexture_.getSize().x, (int)menuBgTexture_.getSize().y }));
+    menuBgTexture_.setSmooth(true);
     ball8Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)ball8Texture_.getSize().x, (int)ball8Texture_.getSize().y }));
+    ball8Texture_.setSmooth(true);
     goalMenuSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)goalMenuTexture_.getSize().x, (int)goalMenuTexture_.getSize().y }));
+    goalMenuTexture_.setSmooth(true);
     ballMenuSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)ballMenuTexture_.getSize().x, (int)ballMenuTexture_.getSize().y }));
+    ballMenuTexture_.setSmooth(true);
 	btnOptionsSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)btnOptionsTexture_.getSize().x, (int)btnOptionsTexture_.getSize().y }));
+    btnOptionsTexture_.setSmooth(true);
 	btnPlaySprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)btnPlayTexture_.getSize().x, (int)btnPlayTexture_.getSize().y }));
+    btnPlayTexture_.setSmooth(true);
 	iconInforSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)iconInforTexture_.getSize().x, (int)iconInforTexture_.getSize().y }));
+    iconInforTexture_.setSmooth(true);
 	iconQuitSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)iconQuitTexture_.getSize().x, (int)iconQuitTexture_.getSize().y }));
+    iconQuitTexture_.setSmooth(true);
 	iconReturnSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)iconReturnTexture_.getSize().x, (int)iconReturnTexture_.getSize().y }));
+    iconReturnTexture_.setSmooth(true);
 	pvpSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)pvpTexture_.getSize().x, (int)pvpTexture_.getSize().y }));
+    pvpTexture_.setSmooth(true);
 	pvaiSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)pvaiTexture_.getSize().x, (int)pvaiTexture_.getSize().y }));
+    pvaiTexture_.setSmooth(true);
 	aivaiSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)aivaiTexture_.getSize().x, (int)aivaiTexture_.getSize().y }));
+    aivaiTexture_.setSmooth(true);
 	arrowLeftSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)arrowLeftTexture_.getSize().x, (int)arrowLeftTexture_.getSize().y }));
+    arrowLeftTexture_.setSmooth(true);
 	arrowRightSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)arrowRightTexture_.getSize().x, (int)arrowRightTexture_.getSize().y }));
+    arrowRightTexture_.setSmooth(true);
 	startBtnSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)startBtnTexture_.getSize().x, (int)startBtnTexture_.getSize().y }));
+    startBtnTexture_.setSmooth(true);
 	nextBtnSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)nextBtnTexture_.getSize().x, (int)nextBtnTexture_.getSize().y }));
+    nextBtnTexture_.setSmooth(true);
 
     // 1. Xử lý Nền Menu (menuBg) - Ép ảnh nền vừa khít kích thước FIELD_WIDTH x FIELD_HEIGHT
     sf::Vector2u bgSize = menuBgTexture_.getSize();
@@ -377,7 +393,7 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
 
         //opt->sprite.setTexture(*opt->texture);
         opt->sprite.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(opt->texture->getSize().x), static_cast<int>(opt->texture->getSize().y) }));
-
+        opt->texture->setSmooth(true);
         sf::Vector2u optSize = opt->texture->getSize();
         float optTargetWidth = 200.f;
         float sOptLeft = optTargetWidth / static_cast<float>(optSize.x);
@@ -421,16 +437,40 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
 }
 
 void Game_Render::updateTransform() {
-    scaleX_ = static_cast<float>(viewWidth_) / FIELD_WIDTH;
-    scaleY_ = static_cast<float>(viewHeight_) / FIELD_HEIGHT;
+    //scaleX_ = static_cast<float>(viewWidth_) / FIELD_WIDTH;
+    //scaleY_ = static_cast<float>(viewHeight_) / FIELD_HEIGHT;
+
     //float scale = (scaleX_ < scaleY_) ? scaleX_ : scaleY_;
     //scaleX_ = scale;
     //scaleY_ = scale;
     //offsetX_ = (viewWidth_ - FIELD_WIDTH * scale) / 2.f;
     //offsetY_ = (viewHeight_ - FIELD_HEIGHT * scale) / 2.f;
 
-    offsetX_ = 0.f;
-    offsetY_ = 0.f;
+    //offsetX_ = 0.f;
+    //offsetY_ = 0.f;
+
+    // 1. Tính toán tỷ lệ khung hình (Aspect Ratio) mong muốn (ví dụ 1000:600)
+    //float targetAspectRatio = 1000.f / 600.f;
+    //float windowAspectRatio = static_cast<float>(viewWidth_) / static_cast<float>(viewHeight_);
+
+    //float viewW = 1000.f;
+    //float viewH = 600.f;
+    //float posX = 0;
+    //float posY = 0;
+
+    //// 2. So sánh để tạo hiệu ứng Letterbox (giữ tỷ lệ 16:10 hoặc tỷ lệ Hiếu chọn)
+    //if (windowAspectRatio > targetAspectRatio) {
+    //    viewW = viewH * windowAspectRatio;
+    //    posX = (viewW - 1000.f) / 2.f;
+    //}
+    //else {
+    //    viewH = viewW / windowAspectRatio;
+    //    posY = (viewH - 600.f) / 2.f;
+    //}
+
+    //// Cập nhật scale cho các tọa độ logic
+    //scaleX_ = static_cast<float>(viewWidth_) / viewW;
+    //scaleY_ = static_cast<float>(viewHeight_) / viewH;
 }
 
 sf::Vector2f Game_Render::worldToScreen(sf::Vector2f world) const {
@@ -953,6 +993,18 @@ void Game_Render::drawMainMenu(sf::RenderWindow& window) {
     // 6. Vẽ
     window.draw(titleText);
 
+    // 2. Tạo hình chữ nhật để vẽ
+    sf::RectangleShape debugRect(sf::Vector2f(250.f, 80.f));
+    debugRect.setPosition({ 375.f, 210.f });
+
+    //// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
+    debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
+    debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
+    debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
+
+    //// 4. Vẽ lên cửa sổ
+    window.draw(debugRect);
+
 }
 
 
@@ -985,17 +1037,17 @@ void Game_Render::drawSelectMode(sf::RenderWindow& window) {
 	window.draw(pvaiSprite_);
 	window.draw(aivaiSprite_);
 
-    //// --- BƯỚC 1: THIẾT LẬP LẠI VIEW ĐỂ DÙNG TỌA ĐỘ THẾ GIỚI (1000x600) ---
-    //sf::View worldView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
-    //window.setView(worldView);
+    // 2. Tạo hình chữ nhật để vẽ
+    sf::RectangleShape debugRect(sf::Vector2f(40.f, 40.f));
+    debugRect.setPosition({ 50.f - 20.f, 50.f - 20.f });
 
-    //// --- BƯỚC 2: KHỞI TẠO VÀ VẼ CHẤM ĐỎ ---
-    //sf::CircleShape debugDot(5.f); // Bán kính 5px cho dễ nhìn
-    //debugDot.setFillColor(sf::Color::Red);
-    //debugDot.setOrigin({ 5.f, 5.f }); // Đặt tâm vào chính giữa chấm
-    //debugDot.setPosition({ 490.f - 130.f, 200.f - 3.f + 95 }); // Tọa độ Hiếu yêu cầu
+    //// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
+    debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
+    debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
+    debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
 
-    //window.draw(debugDot);
+    //// 4. Vẽ lên cửa sổ
+    window.draw(debugRect);
 
     // Nút quay lại (iconQuit đã load)
     window.draw(iconReturnSprite_);
@@ -1071,8 +1123,13 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
     }
 
     // Vẽ mũi tên chuyển trang và nút Start
-    window.draw(arrowLeftSprite_); // Vị trí trái
-    window.draw(arrowRightSprite_); // Vị trí phải
+    if (currentLineupPage_ > 0) {
+        window.draw(arrowLeftSprite_);
+    }
+
+    if ((currentLineupPage_ + 1) * 2 < lineups_.size()) {
+        window.draw(arrowRightSprite_);
+    }
 
     window.draw(iconReturnSprite_);
 
@@ -1086,8 +1143,8 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
     }
 
     // 2. Tạo hình chữ nhật để vẽ
-    sf::RectangleShape debugRect(sf::Vector2f(160.f, 50.f));
-    debugRect.setPosition({ 420.f, 425.f });
+    sf::RectangleShape debugRect(sf::Vector2f(80.f, 40.f));
+    debugRect.setPosition({ 885.f, 210.f });
 
     //// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
     debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
@@ -1123,11 +1180,11 @@ void Game_Render::draw(sf::RenderWindow& window) {
     }
 
     sf::View gameView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
-    float vpW = (FIELD_WIDTH * scaleX_) / viewWidth_;
-    float vpH = (FIELD_HEIGHT * scaleY_) / viewHeight_;
-    float vpX = (1.f - vpW) / 2.f;
-    float vpY = (1.f - vpH) / 2.f;
-    gameView.setViewport(sf::FloatRect({ vpX, vpY }, { vpW, vpH }));
+    //float vpW = (FIELD_WIDTH * scaleX_) / viewWidth_;
+    //float vpH = (FIELD_HEIGHT * scaleY_) / viewHeight_;
+    //float vpX = (1.f - vpW) / 2.f;
+    //float vpY = (1.f - vpH) / 2.f;
+    //gameView.setViewport(sf::FloatRect({ vpX, vpY }, { vpW, vpH }));
     window.setView(gameView);
 
     drawField(window);
@@ -1145,7 +1202,7 @@ void Game_Render::draw(sf::RenderWindow& window) {
 
     
 
-    window.setView(window.getDefaultView());
+    //window.setView(window.getDefaultView());
 
     if (state_->getPhase() == GamePhase::GameOver)
         drawGameOver(window);

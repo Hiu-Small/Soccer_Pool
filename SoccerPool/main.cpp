@@ -1,4 +1,4 @@
-#include <SFML/Graphics.hpp>
+﻿#include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include "GameState.h"
 #include "Game_Render.h"
@@ -26,8 +26,12 @@ int main()
         {
             if (event->is<sf::Event::Closed>())
                 window.close();
-            else
-                controller.handleEvent(*event, window);
+            else if (event->is<sf::Event::Resized>()) {
+                const auto& size = event->getIf<sf::Event::Resized>();
+                // Cập nhật lại kích thước cho Render biết
+                view.setViewSize(size->size.x, size->size.y);
+            }
+            controller.handleEvent(*event, window);
         }
 
         float dt = clock.restart().asSeconds();
