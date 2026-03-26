@@ -46,7 +46,7 @@ public:
 
     void nextPage() {
         // Nếu còn trang tiếp theo (mỗi trang hiện 3 item)
-        if ((currentLineupPage_ + 1) * 3 < lineups_.size()) {
+        if ((currentLineupPage_ + 1) * 2 < lineups_.size()) {
             currentLineupPage_++;
         }
     }
@@ -59,6 +59,10 @@ public:
 
     void setSelectedLineupId(int id) { selectedLineupId_ = id; }
     int getSelectedLineupId() const { return selectedLineupId_; }
+
+    size_t getLineupCount() const {
+        return lineups_.size();
+    }
 
 private:
     void drawField(sf::RenderWindow& window);

@@ -1,2 +1,3 @@
-﻿  main.cpp
+﻿  Game_Controller.cpp
+C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\Game_Controller.cpp(171,22): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
   SoccerPool.vcxproj -> C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\x64\Debug\SoccerPool.exe

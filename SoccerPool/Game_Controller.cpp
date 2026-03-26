@@ -134,6 +134,13 @@ void Game_Controller::handlePickLineup(sf::Vector2f mPos) {
 
             if (state_.getConfig().mode == GameMode::PvAI) {
                 state_.setTeam2Formation(5); // Máy tự chọn 5
+
+                // --- THÊM ĐOẠN NÀY ---
+                aiPlayer2_ = std::make_unique<AIPlayer>(); // Khởi tạo não cho Máy
+                aiPlayer2_->setState(&state_);
+                aiThinkTimer_ = AI_DELAY_SEC; // Kích hoạt đồng hồ chờ
+                // ---------------------
+
                 state_.startNewMatch();      // VÀO CHƠI LUÔN
             }
             else {
@@ -146,199 +153,316 @@ void Game_Controller::handlePickLineup(sf::Vector2f mPos) {
             // Đã là Team 2 chọn xong
             state_.setTeam2Formation(currentSelected);
             state_.startNewMatch(); // VÀO CHƠI
+            aiThinkTimer_ = AI_DELAY_SEC;
         }
         return;
     }
 
     // 3. Logic bấm mũi tên chuyển trang (Vị trí cũ)
-    if (sf::FloatRect({ 40.f, 240.f }, { 85.f, 50.f }).contains(mPos)) view_.prevPage();
-    if (sf::FloatRect({ 880.f, 240.f }, { 85.f, 50.f }).contains(mPos)) view_.nextPage();
+    /*if (sf::FloatRect({ 40.f, 210.f }, { 80.f, 40.f }).contains(mPos)) view_.prevPage();
+    if (sf::FloatRect({ 885.f, 210.f }, { 80.f, 40.f }).contains(mPos)) view_.nextPage();*/
+    if (view_.getCurrentPage() > 0) {
+        if (sf::FloatRect({ 40.f, 210.f }, { 80.f, 40.f }).contains(mPos)) {
+            view_.prevPage();
+            view_.setSelectedLineupId(-1); // Nên reset viền khi sang trang
+        }
+    }
+
+    int totalLineups = view_.getLineupCount();
+    // Cho phép bấm nếu trang tiếp theo vẫn còn ít nhất 1 đội hình
+    if ((view_.getCurrentPage() + 1) * 2 < totalLineups) {
+        if (sf::FloatRect({ 885.f, 210.f }, { 80.f, 40.f }).contains(mPos)) {
+            view_.nextPage();
+            view_.setSelectedLineupId(-1); // Reset viền
+        }
+    }
 
     // 4. Nút Back (Return) góc trên trái
-    if (sf::FloatRect({ 25.f, 25.f }, { 50.f, 50.f }).contains(mPos)) {
+    if (sf::FloatRect({ 30.f, 30.f }, { 40.f, 40.f }).contains(mPos)) {
         state_.setPhase(GamePhase::Setup);
         view_.setSelectedLineupId(-1); // Reset khi quay lại
     }
 }
 
+//handle event
+
+//void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& window) {
+//    if (event.is<sf::Event::Closed>()) return;
+//
+//    sf::Vector2f mPos;
+//    if (event.is<sf::Event::MouseButtonPressed>() ||
+//        event.is<sf::Event::MouseButtonReleased>() ||
+//        event.is<sf::Event::MouseMoved>())
+//    {
+//        // Lấy vị trí chuột hiện tại (pixel) và chuyển sang thế giới (coords)
+//        sf::Vector2i mousePos;
+//        if (const auto* mbp = event.getIf<sf::Event::MouseButtonPressed>()) mousePos = { mbp->position.x, mbp->position.y };
+//        else if (const auto* mbr = event.getIf<sf::Event::MouseButtonReleased>()) mousePos = { mbr->position.x, mbr->position.y };
+//        else if (const auto* mm = event.getIf<sf::Event::MouseMoved>()) mousePos = { mm->position.x, mm->position.y };
+//
+//        mPos = window.mapPixelToCoords(mousePos);
+//    }
+//
+//    // 1. XỬ LÝ CLICK CHUỘT
+//    if (event.is<sf::Event::MouseButtonPressed>()) {
+//        const auto& me = event.getIf<sf::Event::MouseButtonPressed>();
+//        if (me->button == sf::Mouse::Button::Left) {
+//
+//            // Lấy tọa độ chuột (dùng View mặc định cho Menu)
+//            //sf::Vector2f mPos(static_cast<float>(me->position.x), static_cast<float>(me->position.y));
+//
+//            //sf::Vector2i pixelPos = { me->position.x, me->position.y };
+//            //sf::Vector2f mPos = window.mapPixelToCoords(pixelPos);
+//
+//            // --- TRẠNG THÁI MENU CHÍNH ---
+//            if (state_.getPhase() == GamePhase::Menu) {
+//                // Vùng nút PLAY (Vị trí {500, 250}, kích thước khoảng {260, 60})
+//                sf::FloatRect playRect({ 375.f, 210.f },{ 245.f, 80.f });
+//                if (playRect.contains(mPos)) {
+//                    state_.setPhase(GamePhase::Setup); // Chuyển sang chọn Mode
+//                    return;
+//                }
+//
+//                // Vùng nút QUIT (Góc trên phải {950, 50})
+//                sf::FloatRect quitRect({ 950.f - 25.f, 50.f - 25.f },{ 50.f, 50.f});
+//                if (quitRect.contains(mPos)) {
+//                    // Lệnh thoát game (tùy vào cách bạn quản lý window)
+//                }
+//            }
+//
+//            // --- TRẠNG THÁI CHỌN GAME MODE (Setup) ---
+//            else if (state_.getPhase() == GamePhase::Setup) {
+//                // Nút Player vs Player 
+//                if (sf::FloatRect({ 490.f - 125.f, 200.f - 30.f }, { 280.f, 70.f }).contains(mPos)) {
+//                    //startGameWithMode(1); // Gọi hàm khởi tạo PvP của bạn
+//                    GameConfig cfg; cfg.mode = GameMode::PvP; state_.setConfig(cfg);
+//                    view_.setPickingTeam(1);
+//                    state_.setPhase(GamePhase::PickLineup);
+//                    return;
+//                }
+//                // Nút Player vs AI 
+//                else if (sf::FloatRect({ 490.f - 125.f, 200.f - 30.f + 90.f }, { 280.f, 70.f }).contains(mPos)) {
+//                    //startGameWithMode(2); // Giả sử 3 là PvAI Medium
+//                    GameConfig cfg; cfg.mode = GameMode::PvAI; state_.setConfig(cfg);
+//                    view_.setPickingTeam(1);
+//                    state_.setPhase(GamePhase::PickLineup);
+//                    return;
+//                }
+//                // Nút Player vs AI 
+//                else if (sf::FloatRect({ 490.f - 125.f, 200.f - 30.f + 90.f + 90.f }, { 280.f, 70.f }).contains(mPos)) {
+//                    //startGameWithMode(5); // Giả sử 5 là AIvAI Medium
+//                    GameConfig cfg; cfg.mode = GameMode::AIvsAI; state_.setConfig(cfg);
+//                    view_.setPickingTeam(1);
+//                    state_.setPhase(GamePhase::PickLineup);
+//                    return;
+//                }
+//                // Nút Back (Góc trên trái {50, 50})
+//                else if (sf::FloatRect({ 50.f - 20.f, 50.f - 20.f }, { 40.f, 40.f }).contains(mPos)) {
+//                    state_.setPhase(GamePhase::Menu);
+//                }
+//            }
+//
+//            // --- LOGIC CHỌN ĐỘI HÌNH ---
+//            else if (state_.getPhase() == GamePhase::PickLineup) {
+//                handlePickLineup(mPos);
+//            }
+//
+//            else if (state_.getPhase() == GamePhase::Playing ) {
+//                if (sf::FloatRect({ 50.f - 20.f, 50.f - 20.f }, { 40.f, 40.f }).contains(mPos)) {
+//                    state_.setPhase(GamePhase::Setup);
+//                }
+//            }
+//
+//            lastMouseWorld_ = mPos;
+//            selectedPieceIndex_ = getPieceIndexAt(lastMouseWorld_);
+//            if (selectedPieceIndex_ >= 0) {
+//                dragging_ = true;
+//                dragStart_ = state_.getPieces()[selectedPieceIndex_]->getPosition();
+//                dragCurrent_ = dragStart_;
+//            }
+//        }
+//    }
+//
+//    if (state_.getPhase() == GamePhase::GameOver) {
+//        if (event.is<sf::Event::KeyPressed>()) {
+//            const auto& ke = event.getIf<sf::Event::KeyPressed>();
+//            if (ke->scancode == sf::Keyboard::Scan::Space) {
+//                state_.setPhase(GamePhase::Menu);
+//            }
+//        }
+//        return;
+//    }
+//
+//    if (state_.getPhase() == GamePhase::GoalScored) {
+//        return;
+//    }
+//
+//    if (state_.getPhase() != GamePhase::Playing) return;
+//    if (!isCurrentPlayerHuman()) return;
+//    if (!state_.isEverythingStopped()) return;
+//
+//     if (event.is<sf::Event::MouseButtonReleased>()) {
+//        const auto& me = event.getIf<sf::Event::MouseButtonReleased>();
+//        if (me->button == sf::Mouse::Button::Left && dragging_ && selectedPieceIndex_ >= 0) {
+//            //sf::Vector2f end = view_.screenToWorld(sf::Vector2f(static_cast<float>(me->position.x), static_cast<float>(me->position.y)));
+//            sf::Vector2f delta = dragStart_ - mPos;
+//            float len = std::sqrt(delta.x * delta.x + delta.y * delta.y);
+//            if (len > 2.f) {
+//                //float power = std::min(MAX_SHOOT_POWER, len * DRAG_POWER_FACTOR);
+//                // 1. Chốt chiều dài kéo không được vượt quá vòng tròn
+//                float currentLength = std::min(len, MAX_VISUAL_DRAG);
+//
+//                // 2. CÔNG THỨC CỦA BẠN: Tính lực theo tỷ lệ phần trăm
+//                float power = (currentLength * MAX_SHOOT_POWER) / MAX_VISUAL_DRAG;
+//                delta.x /= len;
+//                delta.y /= len;
+//                tryShoot(sf::Vector2f(delta.x * power, delta.y * power));
+//            }
+//            dragging_ = false;
+//        }
+//    } else if (event.is<sf::Event::MouseMoved>()) {
+//        const auto& me = event.getIf<sf::Event::MouseMoved>();
+//        lastMouseWorld_ = mPos;
+//        if (dragging_)
+//            dragCurrent_ = mPos;
+//    }
+//}
 
 void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& window) {
     if (event.is<sf::Event::Closed>()) return;
 
-    // 1. XỬ LÝ CLICK CHUỘT
-    if (event.is<sf::Event::MouseButtonPressed>()) {
-        const auto& me = event.getIf<sf::Event::MouseButtonPressed>();
-        if (me->button == sf::Mouse::Button::Left) {
+    // 1. QUY ĐỔI TỌA ĐỘ CHUỘT (Dùng chung cho tất cả các Phase)
+    sf::Vector2f mPos;
+    bool isMouseEvent = false;
+    if (event.is<sf::Event::MouseButtonPressed>() || event.is<sf::Event::MouseButtonReleased>() || event.is<sf::Event::MouseMoved>()) {
+        sf::Vector2i mousePos;
+        if (const auto* mbp = event.getIf<sf::Event::MouseButtonPressed>()) mousePos = { mbp->position.x, mbp->position.y };
+        else if (const auto* mbr = event.getIf<sf::Event::MouseButtonReleased>()) mousePos = { mbr->position.x, mbr->position.y };
+        else if (const auto* mm = event.getIf<sf::Event::MouseMoved>()) mousePos = { mm->position.x, mm->position.y };
 
-            // Lấy tọa độ chuột (dùng View mặc định cho Menu)
-            //sf::Vector2f mPos(static_cast<float>(me->position.x), static_cast<float>(me->position.y));
-
-            sf::Vector2i pixelPos = { me->position.x, me->position.y };
-            sf::Vector2f mPos = window.mapPixelToCoords(pixelPos);
-
-            // --- TRẠNG THÁI MENU CHÍNH ---
-            if (state_.getPhase() == GamePhase::Menu) {
-                // Vùng nút PLAY (Vị trí {500, 250}, kích thước khoảng {260, 60})
-                sf::FloatRect playRect({ 500.f - 120.f, 250.f - 5.f },{ 240.f, 100.f });
-                if (playRect.contains(mPos)) {
-                    state_.setPhase(GamePhase::Setup); // Chuyển sang chọn Mode
-                    return;
-                }
-
-                // Vùng nút QUIT (Góc trên phải {950, 50})
-                sf::FloatRect quitRect({ 950.f - 25.f, 50.f - 25.f },{ 50.f, 50.f});
-                if (quitRect.contains(mPos)) {
-                    // Lệnh thoát game (tùy vào cách bạn quản lý window)
-                }
-            }
-
-            // --- TRẠNG THÁI CHỌN GAME MODE (Setup) ---
-            else if (state_.getPhase() == GamePhase::Setup) {
-                // Nút Player vs Player 
-                if (sf::FloatRect({ 490.f - 130.f, 200.f - 3.f }, { 280.f, 95.f }).contains(mPos)) {
-                    //startGameWithMode(1); // Gọi hàm khởi tạo PvP của bạn
-                    GameConfig cfg; cfg.mode = GameMode::PvP; state_.setConfig(cfg);
-                    view_.setPickingTeam(1);
-                    state_.setPhase(GamePhase::PickLineup);
-                    return;
-                }
-                // Nút Player vs AI 
-                else if (sf::FloatRect({ 490.f - 130.f, 200.f + 110 }, { 280.f, 85.f }).contains(mPos)) {
-                    //startGameWithMode(2); // Giả sử 3 là PvAI Medium
-                    GameConfig cfg; cfg.mode = GameMode::PvAI; state_.setConfig(cfg);
-                    view_.setPickingTeam(1);
-                    state_.setPhase(GamePhase::PickLineup);
-                    return;
-                }
-                // Nút Player vs AI 
-                else if (sf::FloatRect({ 490.f - 130.f, 200.f + 110 + 110 }, { 280.f, 85.f }).contains(mPos)) {
-                    //startGameWithMode(5); // Giả sử 5 là AIvAI Medium
-                    GameConfig cfg; cfg.mode = GameMode::AIvsAI; state_.setConfig(cfg);
-                    view_.setPickingTeam(1);
-                    state_.setPhase(GamePhase::PickLineup);
-                    return;
-                }
-                // Nút Back (Góc trên trái {50, 50})
-                else if (sf::FloatRect({ 50.f - 25.f, 50.f - 25.f }, { 50.f, 50.f }).contains(mPos)) {
-                    state_.setPhase(GamePhase::Menu);
-                }
-            }
-
-            // --- LOGIC CHỌN ĐỘI HÌNH ---
-            else if (state_.getPhase() == GamePhase::PickLineup) {
-                handlePickLineup(mPos);
-                //int startIdx = view_.getCurrentPage() * 2;
-                //for (int i = 0; i < 2; ++i) {
-                //    // Vùng click của 2 cái ảnh đội hình (khớp với vị trí vẽ 150 + i * 300)
-                //    sf::FloatRect cardRect({ 150.f + i * 300.f, 200.f }, { 250.f, 200.f });
-                //    if (cardRect.contains(mPos)) {
-                //        int selectedId = view_.getLineupId(startIdx + i);
-
-                //        if (view_.getPickingTeam() == 1) {
-                //            state_.setTeam1Formation(selectedId);
-
-                //            // Nếu là PvAI, team 2 tự chọn và vào game luôn
-                //            if (state_.getConfig().mode == GameMode::PvAI) {
-                //                state_.setTeam2Formation(5); // Máy chọn sơ đồ 5
-                //                state_.startNewMatch(); // VÀO CHƠI
-                //            }
-                //            else {
-                //                view_.setPickingTeam(2); // Chuyển sang chọn cho Team 2
-                //            }
-                //        }
-                //        else {
-                //            state_.setTeam2Formation(selectedId);
-                //            state_.startNewMatch(); // VÀO CHƠI
-                //        }
-                //        return;
-                //    }
-                //}
-
-                // Nút Back (Góc trên trái {50, 50})
-                /*if (sf::FloatRect({ 50.f - 25.f, 50.f - 25.f }, { 50.f, 50.f }).contains(mPos)) {
-                    state_.setPhase(GamePhase::Setup);
-                }*/
-
-                // Click Mũi tên chuyển trang
-                // if (arrowRightSpriteBounds.contains(mPos)) view_.nextPage();
-            }
-
-            else if (state_.getPhase() == GamePhase::Playing ) {
-                if (sf::FloatRect({ 50.f - 25.f, 50.f - 25.f }, { 50.f, 50.f }).contains(mPos)) {
-                    state_.setPhase(GamePhase::Setup);
-                }
-            }
-        }
+        mPos = window.mapPixelToCoords(mousePos);
+        isMouseEvent = true;
     }
 
-    //if (state_.getPhase() == GamePhase::Menu) {
-    //    if (event.is<sf::Event::KeyPressed>()) {
-    //        const auto& ke = event.getIf<sf::Event::KeyPressed>();
-    //        if (ke->scancode == sf::Keyboard::Scan::Num1) startGameWithMode(1);
-    //        else if (ke->scancode == sf::Keyboard::Scan::Num2) startGameWithMode(2);
-    //        else if (ke->scancode == sf::Keyboard::Scan::Num3) startGameWithMode(3);
-    //        else if (ke->scancode == sf::Keyboard::Scan::Num4) startGameWithMode(4);
-    //        else if (ke->scancode == sf::Keyboard::Scan::Num5) startGameWithMode(5);
-    //    }
-    //    return;
-    //}
+    // 2. XỬ LÝ THEO TỪNG PHASE CỤ THỂ
+    GamePhase currentPhase = state_.getPhase();
 
-    if (state_.getPhase() == GamePhase::GameOver) {
+    // --- PHASE MENU / SETUP / LINEUP ---
+    if (currentPhase == GamePhase::Menu || currentPhase == GamePhase::Setup || currentPhase == GamePhase::PickLineup) {
+        if (isMouseEvent && event.is<sf::Event::MouseButtonPressed>()) {
+            const auto& me = event.getIf<sf::Event::MouseButtonPressed>();
+            if (me->button == sf::Mouse::Button::Left) {
+                // Chỉ xử lý Click chuột ở đây
+                if (currentPhase == GamePhase::Menu) { 
+                    // Vùng nút PLAY (Vị trí {500, 250}, kích thước khoảng {260, 60})
+                    sf::FloatRect playRect({ 375.f, 210.f },{ 250.f, 80.f });
+                    if (playRect.contains(mPos)) {
+                        state_.setPhase(GamePhase::Setup); // Chuyển sang chọn Mode
+                        return;
+                    }
+
+                    // Vùng nút QUIT (Góc trên phải {950, 50})
+                    sf::FloatRect quitRect({ 950.f - 25.f, 50.f - 25.f },{ 50.f, 50.f});
+                    if (quitRect.contains(mPos)) {
+                        // Lệnh thoát game (tùy vào cách bạn quản lý window)
+                    } 
+                }
+                else if (currentPhase == GamePhase::Setup) {
+                    //Nút Player vs Player 
+                    if (sf::FloatRect({ 490.f - 125.f, 200.f - 30.f }, { 280.f, 70.f }).contains(mPos)) {
+                        //startGameWithMode(1); // Gọi hàm khởi tạo PvP của bạn
+                        GameConfig cfg; cfg.mode = GameMode::PvP; state_.setConfig(cfg);
+                        view_.setPickingTeam(1);
+                        state_.setPhase(GamePhase::PickLineup);
+                        return;
+                    }
+                    // Nút Player vs AI 
+                    else if (sf::FloatRect({ 490.f - 125.f, 200.f - 30.f + 90.f }, { 280.f, 70.f }).contains(mPos)) {
+                        //startGameWithMode(2); // Giả sử 3 là PvAI Medium
+                        GameConfig cfg; cfg.mode = GameMode::PvAI; state_.setConfig(cfg);
+                        view_.setPickingTeam(1);
+                        state_.setPhase(GamePhase::PickLineup);
+                        return;
+                    }
+                    // Nút AI vs AI 
+                    else if (sf::FloatRect({ 490.f - 125.f, 200.f - 30.f + 90.f + 90.f }, { 280.f, 70.f }).contains(mPos)) {
+                        //startGameWithMode(5); // Giả sử 5 là AIvAI Medium
+                        GameConfig cfg; cfg.mode = GameMode::AIvsAI; state_.setConfig(cfg);
+
+                        // --- QUAN TRỌNG: Khởi tạo 2 não AI ở đây ---
+                        aiPlayer1_ = std::make_unique<AIPlayer>();
+                        aiPlayer1_->setState(&state_);
+                        aiPlayer2_ = std::make_unique<AIPlayer>();
+                        aiPlayer2_->setState(&state_);
+
+                        view_.setPickingTeam(1);
+                        state_.setPhase(GamePhase::PickLineup);
+                        return;
+                    }
+                    // Nút Back (Góc trên trái {50, 50})
+                    else if (sf::FloatRect({ 50.f - 20.f, 50.f - 20.f }, { 40.f, 40.f }).contains(mPos)) {
+                        state_.setPhase(GamePhase::Menu);
+                    }
+                }
+                else if (currentPhase == GamePhase::PickLineup) handlePickLineup(mPos);
+            }
+        }
+        return; // Thoát ra vì không phải phase Playing
+    }
+
+    // --- PHASE GAME OVER ---
+    if (currentPhase == GamePhase::GameOver) {
         if (event.is<sf::Event::KeyPressed>()) {
-            const auto& ke = event.getIf<sf::Event::KeyPressed>();
-            if (ke->scancode == sf::Keyboard::Scan::Space) {
+            if (event.getIf<sf::Event::KeyPressed>()->scancode == sf::Keyboard::Scan::Space)
                 state_.setPhase(GamePhase::Menu);
-            }
         }
         return;
     }
 
-    if (state_.getPhase() == GamePhase::GoalScored) {
-        return;
+    // --- PHASE PLAYING (LOGIC SÚT BÓNG) ---
+    if (currentPhase != GamePhase::Playing) return;
+
+    if (isMouseEvent && event.is<sf::Event::MouseButtonPressed>()) {
+        if (event.getIf<sf::Event::MouseButtonPressed>()->button == sf::Mouse::Button::Left) {
+            // Check nút Back (Góc trên trái {50, 50})
+            if (sf::FloatRect({ 50.f - 20.f, 50.f - 20.f }, { 40.f, 40.f }).contains(mPos)) {
+                state_.setPhase(GamePhase::Setup); // Quay lại chọn Mode
+                return; // Thoát luôn để không kéo trúng cầu thủ nằm dưới nút
+            }
+        }
     }
 
-    if (state_.getPhase() != GamePhase::Playing) return;
-    if (!isCurrentPlayerHuman()) return;
-    if (!state_.isEverythingStopped()) return;
+    if (!isCurrentPlayerHuman() || !state_.isEverythingStopped()) return;
 
     if (event.is<sf::Event::MouseButtonPressed>()) {
         const auto& me = event.getIf<sf::Event::MouseButtonPressed>();
         if (me->button == sf::Mouse::Button::Left) {
-            lastMouseWorld_ = view_.screenToWorld(sf::Vector2f(static_cast<float>(me->position.x), static_cast<float>(me->position.y)));
-            selectedPieceIndex_ = getPieceIndexAt(lastMouseWorld_);
+            selectedPieceIndex_ = getPieceIndexAt(mPos);
             if (selectedPieceIndex_ >= 0) {
                 dragging_ = true;
                 dragStart_ = state_.getPieces()[selectedPieceIndex_]->getPosition();
-                dragCurrent_ = dragStart_;
+                dragCurrent_ = mPos;
             }
         }
-    } else if (event.is<sf::Event::MouseButtonReleased>()) {
+    }
+    else if (event.is<sf::Event::MouseButtonReleased>()) {
         const auto& me = event.getIf<sf::Event::MouseButtonReleased>();
         if (me->button == sf::Mouse::Button::Left && dragging_ && selectedPieceIndex_ >= 0) {
-            sf::Vector2f end = view_.screenToWorld(sf::Vector2f(static_cast<float>(me->position.x), static_cast<float>(me->position.y)));
-            sf::Vector2f delta = dragStart_ - end;
+            sf::Vector2f delta = dragStart_ - mPos;
             float len = std::sqrt(delta.x * delta.x + delta.y * delta.y);
             if (len > 2.f) {
-                //float power = std::min(MAX_SHOOT_POWER, len * DRAG_POWER_FACTOR);
-                // 1. Chốt chiều dài kéo không được vượt quá vòng tròn
                 float currentLength = std::min(len, MAX_VISUAL_DRAG);
-
-                // 2. CÔNG THỨC CỦA BẠN: Tính lực theo tỷ lệ phần trăm
                 float power = (currentLength * MAX_SHOOT_POWER) / MAX_VISUAL_DRAG;
-                delta.x /= len;
-                delta.y /= len;
+                delta /= len;
                 tryShoot(sf::Vector2f(delta.x * power, delta.y * power));
             }
             dragging_ = false;
         }
-    } else if (event.is<sf::Event::MouseMoved>()) {
-        const auto& me = event.getIf<sf::Event::MouseMoved>();
-        lastMouseWorld_ = view_.screenToWorld(sf::Vector2f(static_cast<float>(me->position.x), static_cast<float>(me->position.y)));
-        if (dragging_)
-            dragCurrent_ = lastMouseWorld_;
+    }
+    else if (event.is<sf::Event::MouseMoved>()) {
+        if (dragging_) dragCurrent_ = mPos;
     }
 }
-
 
 void Game_Controller::update(float dt) {
     if (state_.getPhase() == GamePhase::GoalScored) {
