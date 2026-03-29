@@ -44,7 +44,7 @@ bool Game_Controller::isCurrentPlayerHuman() const {
 
 void Game_Controller::startGameWithMode(int menuChoice) {
     GameConfig cfg;
-    cfg.pieceCount = 3;
+    cfg.lineUp = 0;
     cfg.goalsToWin = DEFAULT_GOALS_TO_WIN;
     if (menuChoice == 1) { cfg.mode = GameMode::PvP; }
     else if (menuChoice == 2) { cfg.mode = GameMode::PvAI; cfg.aiDifficulty = AIDifficulty::Easy; }

@@ -55,14 +55,14 @@ const int MAX_GOALS_TO_WIN = 5;
 // Ví dụ: {1, 2, 2} = 1 thủ môn, 2 hàng 2
 using Formation = std::vector<int>; //Đây là hàm giúp sắp xếp đội hình
 
-inline Formation getFormation(int pieceCount) {
-    switch (pieceCount) {
+inline Formation getFormation(int lineUp) {
+    switch (lineUp) {
         //case 2: return {1, 1};
         //case 3: return {1, 2};
         case 1: return {1, 1, 3};
         case 0: return {1, 2, 2};
         case 2: return {1,2,1,1 };//eagle
-        case 3: return { 0, 0, 5 };//psycho
+        case 3: return {1, 3, 1 };//psycho
         case 4: return { 0, 3, 2 };//moon
 		case 5: return { 0, 2, 3 };//wave
         case 6: return { 1,1,1,2 };//edge

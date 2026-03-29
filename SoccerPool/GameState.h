@@ -16,7 +16,7 @@ namespace SoccerPool {
     enum class GamePhase { Menu, Setup, Playing, GoalScored, GameOver, PickLineup};
 
     struct GameConfig {
-        int pieceCount = 3;
+        int lineUp = 0;
         int goalsToWin = DEFAULT_GOALS_TO_WIN;
         GameMode mode = GameMode::PvP;
         AIDifficulty aiDifficulty = AIDifficulty::Medium;

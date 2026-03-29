@@ -362,7 +362,7 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
         auto opt = std::make_shared<LineupOption>();
         // 2. Gán dữ liệu (Dùng dấu -> thay vì dấu .)
         /*opt->id = (i == 0) ? 5 : (10 + i)*/;
-		opt->id = i + 1; 
+		opt->id = i; 
 
         if(i == 0) {
             opt->name = "1-2-2";
