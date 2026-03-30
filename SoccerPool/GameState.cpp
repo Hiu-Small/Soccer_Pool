@@ -20,6 +20,7 @@ void GameState::startNewMatch() {
     score2_ = 0;
     currentTurn_ = Team::Team1;
     phase_ = GamePhase::Playing;
+    resetTurnTimer();
     pieces_.clear();
     spawnPieces();
     spawnBall();
@@ -388,7 +389,6 @@ void GameState::resetPositionsAfterGoal() {
     pieces_.clear();
     spawnPieces();
     spawnBall();
-    switchTurn();
     phase_ = GamePhase::Playing;
 }
 
@@ -419,9 +419,11 @@ void GameState::update(float dt) {
         phase_ = GamePhase::GoalScored;
         if (goal == 1) {
             addGoalTeam2();
+            switchTurn(Team::Team1);
             if (onGoal_) onGoal_(Team::Team2);
         } else {
             addGoalTeam1();
+            switchTurn(Team::Team2);
             if (onGoal_) onGoal_(Team::Team1);
         }
         int s1 = getScore1(), s2 = getScore2();

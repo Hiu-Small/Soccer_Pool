@@ -8,12 +8,13 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <optional>
 
 namespace SoccerPool {
 
     enum class GameMode { PvP, PvAI, AIvsAI };
     enum class AIDifficulty { Easy, Medium, Hard };
-    enum class GamePhase { Menu, Setup, Playing, GoalScored, GameOver, PickLineup};
+    enum class GamePhase { Menu, Setup, Playing, GoalScored, GameOver, PickLineup, ConfirmQuit};
 
     struct GameConfig {
         int lineUp = 0;
@@ -45,7 +46,17 @@ namespace SoccerPool {
 
         Team getCurrentTurn() const { return currentTurn_; }
         void setCurrentTurn(Team t) { currentTurn_ = t; }
-        void switchTurn() { currentTurn_ = currentTurn_ == Team::Team1 ? Team::Team2 : Team::Team1; turnTimer_ = TURN_TIME_LIMIT;
+
+        /*void switchTurn() { currentTurn_ = currentTurn_ == Team::Team1 ? Team::Team2 : Team::Team1; turnTimer_ = TURN_TIME_LIMIT;
+        }*/
+        void switchTurn(std::optional<Team> nextTeam = std::nullopt) {
+            if (nextTeam.has_value()) {
+                currentTurn_ = nextTeam.value();
+            }
+            else {
+                currentTurn_ = (currentTurn_ == Team::Team1) ? Team::Team2 : Team::Team1;
+            }
+            resetTurnTimer(); // Luôn reset lại 30s mỗi khi đổi lượt
         }
 
         int getScore1() const { return score1_; }
@@ -76,6 +87,9 @@ namespace SoccerPool {
         void setTeam2Formation(int id) { team2Formation_ = id; }
         //void startNewMatch();
 
+        void setPreviousPhase(GamePhase p) { previousPhase_ = p; }
+        GamePhase getPreviousPhase() const { return previousPhase_; }
+
     private:
         void spawnPieces();
         void spawnBall();
@@ -98,6 +112,9 @@ namespace SoccerPool {
         std::function<void(Team)> onGameOver_;
 
         float turnTimer_ = TURN_TIME_LIMIT;
+
+        GamePhase previousPhase_; // Để biết chúng ta đến ConfirmQuit từ đâu
+
     };
 
 };// namespace SoccerPool

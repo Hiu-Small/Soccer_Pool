@@ -25,7 +25,7 @@ const float GOAL_AREA_DEPTH = 32.f; //Độ sâu của vòng cấm địa (dùng
 const float LINE_WIDTH = 3.f; //Độ dày của các đường kẻ vạch trắng trên sân (3 pixel).
 
 // Vật thể
-const float BALL_RADIUS = 16.f;
+const float BALL_RADIUS = 13.f;
 const float PIECE_RADIUS = 25.f; //Bán kính quân cờ (cầu thủ).
 
 // Vật lý (tăng tốc: lực sút mạnh hơn, ma sát nhẹ hơn)

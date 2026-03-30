@@ -47,6 +47,10 @@ private:
 
     float aiThinkTimer_ = 0.f;
     static const float AI_DELAY_SEC;
+
+    std::optional<sf::Cursor> handCursor_;    // Dùng optional
+    std::optional<sf::Cursor> defaultCursor_;
+    bool isMouseOverInteractive(sf::Vector2f mousePos) const;
 };
 
 } // namespace SoccerPool

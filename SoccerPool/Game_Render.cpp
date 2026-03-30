@@ -7,7 +7,7 @@
 
 namespace SoccerPool {
 
-Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTexture_), team1Sprite_(team1Texture_), team2Sprite_(team2Texture_), sbSprite_(sbTexture_), menuBgSprite_(menuBgTexture_), ball8Sprite_(ball8Texture_), goalMenuSprite_(goalMenuTexture_), ballMenuSprite_(ballMenuTexture_), btnPlaySprite_(btnPlayTexture_), btnOptionsSprite_(btnOptionsTexture_), iconQuitSprite_(iconQuitTexture_), iconInforSprite_(iconInforTexture_), iconReturnSprite_(iconReturnTexture_), pvpSprite_(pvpTexture_), pvaiSprite_(pvaiTexture_), aivaiSprite_(aivaiTexture_), arrowLeftSprite_(arrowLeftTexture_), arrowRightSprite_(arrowRightTexture_), startBtnSprite_(startBtnTexture_), nextBtnSprite_(nextBtnTexture_) {
+Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTexture_), team1Sprite_(team1Texture_), team2Sprite_(team2Texture_), sbSprite_(sbTexture_), menuBgSprite_(menuBgTexture_), ball8Sprite_(ball8Texture_), goalMenuSprite_(goalMenuTexture_), ballMenuSprite_(ballMenuTexture_), btnPlaySprite_(btnPlayTexture_), btnOptionsSprite_(btnOptionsTexture_), iconQuitSprite_(iconQuitTexture_), iconInforSprite_(iconInforTexture_), iconReturnSprite_(iconReturnTexture_), pvpSprite_(pvpTexture_), pvaiSprite_(pvaiTexture_), aivaiSprite_(aivaiTexture_), arrowLeftSprite_(arrowLeftTexture_), arrowRightSprite_(arrowRightTexture_), startBtnSprite_(startBtnTexture_), nextBtnSprite_(nextBtnTexture_), msbQuitSprite_(msbQuitTexture_) {
     // 1. Cố gắng load file ảnh
     // Đảm bảo bạn đã tạo thư mục 'assets' và bỏ file ảnh vào đó!
     if (!fieldTexture_.loadFromFile("assets/field_4.png")) {
@@ -220,6 +220,9 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
     if (!nextBtnTexture_.loadFromFile("assets/next_btn.png")) {
         std::cerr << "Khong the load file: assets/next_btn.png" << std::endl;
 	}
+    if (!msbQuitTexture_.loadFromFile("assets/msb_quit.png")) {
+        std::cerr << "Khong the load file: assets/msb_quit.png" << std::endl;
+    }
     //btnGrayTexture_.loadFromFile("assets/btn_gray.png"); // Chỉ có hình chữ nhật bo góc xám
     //iconPlayTexture_.loadFromFile("assets/icon_play.png");
     //iconGearTexture_.loadFromFile("assets/icon_gear.png");
@@ -265,6 +268,8 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
     startBtnTexture_.setSmooth(true);
 	nextBtnSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)nextBtnTexture_.getSize().x, (int)nextBtnTexture_.getSize().y }));
     nextBtnTexture_.setSmooth(true);
+	msbQuitSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)msbQuitTexture_.getSize().x, (int)msbQuitTexture_.getSize().y }));
+	msbQuitTexture_.setSmooth(true);
 
     // 1. Xử lý Nền Menu (menuBg) - Ép ảnh nền vừa khít kích thước FIELD_WIDTH x FIELD_HEIGHT
     sf::Vector2u bgSize = menuBgTexture_.getSize();
@@ -374,7 +379,7 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
             opt->name = "1-2-1-1";
         }
         else if(i == 3) {
-            opt->name = "0-0-5";
+            opt->name = "1-3-1";
         }
         else if(i == 4) {
             opt->name = "0-3-2";
@@ -432,6 +437,13 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
 	nextBtnSprite_.setScale({ sNextBtn, sNextBtn });
 	nextBtnSprite_.setOrigin({ nextBtnSize.x / 2.f, nextBtnSize.y / 2.f });
 	nextBtnSprite_.setPosition({ 500.f, 450.f });
+
+	sf::Vector2u msbQuitSize = msbQuitTexture_.getSize();
+	float targetMsbQuitWidth = 1000.f;
+	float sMsbQuit = targetMsbQuitWidth / static_cast<float>(msbQuitSize.x);
+	msbQuitSprite_.setScale({ sMsbQuit, sMsbQuit });
+	msbQuitSprite_.setOrigin({ msbQuitSize.x / 2.f, msbQuitSize.y / 2.f });
+	msbQuitSprite_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f });
 
     updateTransform();
 }
@@ -1156,55 +1168,116 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
 }
 
 
+void Game_Render::drawConfirmQuit(sf::RenderWindow& window) {
+    // --- BƯỚC 1: VẼ LỚP NỀN MỜ (OVERLAY) ---
+    // Tạo một hình chữ nhật to bằng đúng kích thước cửa sổ game
+    sf::RectangleShape overlay(sf::Vector2f(FIELD_WIDTH, FIELD_HEIGHT));
+    overlay.setPosition({ 0.f, 0.f });
+
+    // Màu đen (0,0,0) với độ trong suốt là 150 (giá trị từ 0 đến 255)
+    // 0 là trong suốt hoàn toàn, 255 là đen kịt. 150-180 là con số đẹp để làm mờ nền.
+    overlay.setFillColor(sf::Color(0, 0, 0, 150));
+
+    window.draw(overlay);
+
+    window.draw(msbQuitSprite_);
+
+    // --- BƯỚC 3: VẼ DEBUG RECT (NẾU CẦN) ---
+    sf::RectangleShape debugRect(sf::Vector2f(135.f, 47.f));
+    debugRect.setPosition({ 515.f, 273.f });
+    debugRect.setFillColor(sf::Color::Transparent);
+    debugRect.setOutlineColor(sf::Color::Red);
+    debugRect.setOutlineThickness(2.f);
+    // window.draw(debugRect); // Tắt đi khi đã khớp vị trí
+
+    //// 2. Tạo hình chữ nhật để vẽ
+    //sf::RectangleShape debugRect(sf::Vector2f(135.f, 47.f));
+    //debugRect.setPosition({ 515.f, 273.f });
+
+    ////// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
+    //debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
+    //debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
+    //debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
+
+    ////// 4. Vẽ lên cửa sổ
+    //window.draw(debugRect);
+}
+
 void Game_Render::draw(sf::RenderWindow& window) {
     if (!state_) return;
     updateTransform();
 
-    if (state_->getPhase() == GamePhase::Menu) {
+    GamePhase current = state_->getPhase();
+
+    // Nếu đang ở ConfirmQuit, vẽ nền trước (phase trước đó)
+    if (current == GamePhase::ConfirmQuit) {
+        GamePhase behind = state_->getPreviousPhase();
+
+        if (behind == GamePhase::Menu) {
+            sf::View menuView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
+            window.setView(menuView);
+            drawMainMenu(window);
+        }
+        else if (behind == GamePhase::Setup) {
+            sf::View setupView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
+            window.setView(setupView);
+            drawSelectMode(window);
+        }
+        else if (behind == GamePhase::PickLineup) {
+            sf::View lineupView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
+            window.setView(lineupView);
+            drawSelectLineup(window);
+        }
+        else if (behind == GamePhase::Playing) {
+            sf::View gameView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
+            window.setView(gameView);
+            drawField(window);
+            drawGoals(window);
+            drawBall(window);
+            drawPieces(window);
+            drawUI(window);
+        }
+
+        // SAU KHI VẼ XONG NỀN, VẼ MESSAGE BOX CHỒNG LÊN
+        drawConfirmQuit(window);
+        return; // THOÁT LUÔN, KHÔNG ĐI XUỐNG PHÍA DƯỚI
+    }
+
+    // Các phase bình thường (không phải ConfirmQuit)
+    if (current == GamePhase::Menu) {
         sf::View menuView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
         window.setView(menuView);
         drawMainMenu(window);
         return;
     }
-    else if (state_->getPhase() == GamePhase::Setup) {
+    else if (current == GamePhase::Setup) {
         sf::View setupView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
         window.setView(setupView);
         drawSelectMode(window);
         return;
     }
-    else if (state_->getPhase() == GamePhase::PickLineup) {
+    else if (current == GamePhase::PickLineup) {
         sf::View lineupView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
         window.setView(lineupView);
         drawSelectLineup(window);
         return;
     }
 
+    // Phase Playing và GameOver
     sf::View gameView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
-    //float vpW = (FIELD_WIDTH * scaleX_) / viewWidth_;
-    //float vpH = (FIELD_HEIGHT * scaleY_) / viewHeight_;
-    //float vpX = (1.f - vpW) / 2.f;
-    //float vpY = (1.f - vpH) / 2.f;
-    //gameView.setViewport(sf::FloatRect({ vpX, vpY }, { vpW, vpH }));
     window.setView(gameView);
 
     drawField(window);
     drawGoals(window);
     drawBall(window);
     drawPieces(window);
+
     if (dragActive_) {
-        //drawDragIndicator(window, dragFrom_, dragTo_);
-        //float len = std::sqrt(dragDir_.x * dragDir_.x + dragDir_.y * dragDir_.y);
-        //
-            //ƯdrawDirectionArrow(window, dragPiecePos_, sf::Vector2f(dragDir_.x / len, dragDir_.y / len), 55.f);
         drawShotAiming(window);
         dragActive_ = false;
     }
 
-    
-
-    //window.setView(window.getDefaultView());
-
-    if (state_->getPhase() == GamePhase::GameOver)
+    if (current == GamePhase::GameOver)
         drawGameOver(window);
     else
         drawUI(window);
