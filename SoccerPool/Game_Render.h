@@ -64,6 +64,13 @@ public:
         return lineups_.size();
     }
 
+    void resetSelectionState() {
+        currentLineupPage_ = 0;       // Về trang đầu
+        selectedLineupId_ = -1;      // Bỏ chọn đội hình
+        pickingForTeam_ = 1;         // Reset về Team 1 chọn đầu tiên
+    }
+
+    void setCurrentPage(int page) { currentLineupPage_ = page; }
 private:
     void drawField(sf::RenderWindow& window);
     void drawGoals(sf::RenderWindow& window);
@@ -77,6 +84,7 @@ private:
     void drawSelectMode(sf::RenderWindow& window);
 
     void drawSelectLineup(sf::RenderWindow& window);
+    void drawConfirmQuit(sf::RenderWindow& window);
 
     GameState* state_ = nullptr;
     unsigned viewWidth_ = 1000;
@@ -132,6 +140,7 @@ private:
 	sf::Texture pvpTexture_;           // Nút PvP
 	sf::Texture pvaiTexture_;          // Nút PvAI
 	sf::Texture aivaiTexture_;           // Nút AI vs AI
+    sf::Texture msbQuitTexture_;
 
     // Sprite tương ứng
     sf::Sprite menuBgSprite_;
@@ -146,6 +155,7 @@ private:
 	sf::Sprite pvpSprite_;
 	sf::Sprite pvaiSprite_;
 	sf::Sprite aivaiSprite_;
+	sf::Sprite msbQuitSprite_;
 
     struct LineupOption {
         int id;
