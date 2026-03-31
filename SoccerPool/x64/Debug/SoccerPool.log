@@ -1,6 +1,10 @@
-﻿  Game_Render.cpp
-C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\Game_Render.cpp(984,31): warning C4834: discarding return value of function with [[nodiscard]] attribute
-C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\Game_Render.cpp(1030,31): warning C4834: discarding return value of function with [[nodiscard]] attribute
-C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\Game_Render.cpp(1076,31): warning C4834: discarding return value of function with [[nodiscard]] attribute
-C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\Game_Render.cpp(1122,35): warning C4834: discarding return value of function with [[nodiscard]] attribute
+﻿  AIPlayer.cpp
+C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\AIPlayer.cpp(180,57): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\AIPlayer.cpp(199,63): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\AIPlayer.cpp(215,42): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\AIPlayer.cpp(222,73): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+  Game_Controller.cpp
+C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\SoccerPool\Game_Controller.cpp(176,22): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  main.cpp
+  Generating Code...
   SoccerPool.vcxproj -> C:\Users\Admin\Downloads\File hoc dai hoc\Tri tue nhan tao\Code_game\SoccerPool\x64\Debug\SoccerPool.exe

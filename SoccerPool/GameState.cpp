@@ -451,6 +451,8 @@ GameState* GameState::clone() const {
     copy->team1Formation_ = this->team1Formation_;
     copy->team2Formation_ = this->team2Formation_;
 
+    copy->turnTimer_ = this->turnTimer_;  // THÊM DÒNG NÀY
+
     // 3. SAO CHÉP SÂU QUẢ BÓNG (Tạo quả bóng mới có cùng vị trí, vận tốc)
     copy->ball_ = std::make_shared<Ball>(*this->ball_);
 
