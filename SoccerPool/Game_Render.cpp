@@ -721,6 +721,10 @@ std::string formatTime(float seconds) {
 void Game_Render::drawUI(sf::RenderWindow& window) {
     if (!state_ || !isSbLoaded_) return;
 
+    sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+    float sRet = 180.f / iconReturnTexture_.getSize().x;
+    applyHoverEffect(iconReturnSprite_, { {30.f, 30.f}, {40.f, 40.f} }, mPos, sRet);
     window.draw(iconReturnSprite_);
 
     // CHỈ VẼ DUY NHẤT CÁI BẢNG TỈ SỐ ĐỂ KIỂM TRA
@@ -961,21 +965,31 @@ void Game_Render::drawShotAiming(sf::RenderWindow& window) {
 void Game_Render::drawMainMenu(sf::RenderWindow& window) {
     window.draw(menuBgSprite_);
 
+    sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
     // Vẽ họa tiết trang trí
     //ball8Sprite_.setPosition({ 150.f, 150.f });
     window.draw(ball8Sprite_);
     //goalMenuSprite_.setPosition({ 750.f, 400.f });
     window.draw(goalMenuSprite_);
 
-	window.draw(ballMenuSprite_);
+    window.draw(ballMenuSprite_);
 
+    float sPlay = 800.f / btnPlayTexture_.getSize().x;
+    applyHoverEffect(btnPlaySprite_, {{ 375.f, 210.f }, { 250.f, 80.f }}, mPos, sPlay);
     window.draw(btnPlaySprite_);
 
+    float sOpt = 800.f / btnOptionsTexture_.getSize().x;
+    applyHoverEffect(btnOptionsSprite_, { { 375.f, 340.f },{ 250.f, 80.f}}, mPos, sOpt);
     window.draw(btnOptionsSprite_);
 
-	window.draw(iconQuitSprite_);
+    float sQuit = 180.f / iconQuitTexture_.getSize().x;
+    applyHoverEffect(iconQuitSprite_, { { 925.f, 25.f }, {50.f, 50.f}}, mPos, sQuit);
+    window.draw(iconQuitSprite_);
 
-	window.draw(iconInforSprite_);
+    float sInfo = 40.f / iconInforTexture_.getSize().x;
+    applyHoverEffect(iconInforSprite_, {{ 880.f, 30.f }, { 40.f, 40.f }}, mPos, sInfo);
+    window.draw(iconInforSprite_);
 
     sf::Font titleFont;
     if (!titleFont.openFromFile("assets/font/GulfsDisplay-SemiCondensed.ttf")) { // Đường dẫn font mới
@@ -1022,6 +1036,7 @@ void Game_Render::drawMainMenu(sf::RenderWindow& window) {
 
 void Game_Render::drawSelectMode(sf::RenderWindow& window) {
     window.draw(menuBgSprite_);
+    sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
     sf::Font titleFont;
     if (!titleFont.openFromFile("assets/font/GulfsDisplay-SemiCondensed.ttf")) { // Đường dẫn font mới
@@ -1045,9 +1060,19 @@ void Game_Render::drawSelectMode(sf::RenderWindow& window) {
 
     window.draw(titleText);
 
-	window.draw(pvpSprite_);
-	window.draw(pvaiSprite_);
-	window.draw(aivaiSprite_);
+    float sPvp = 550.f / pvpTexture_.getSize().x;
+    applyHoverEffect(pvpSprite_, { { 365.f, 170.f}, {280.f, 70.f} }, mPos, sPvp);
+    window.draw(pvpSprite_);
+
+    // PVAI
+    float sPvai = 550.f / pvaiTexture_.getSize().x;
+    applyHoverEffect(pvaiSprite_, {{ 365.f, 260.f }, { 280.f, 70.f }}, mPos, sPvai);
+    window.draw(pvaiSprite_);
+
+    // AIVAI
+    float sAivai = 550.f / aivaiTexture_.getSize().x;
+    applyHoverEffect(aivaiSprite_, {{ 365.f, 350.f }, { 280.f, 70.f }}, mPos, sAivai);
+    window.draw(aivaiSprite_);
 
     // 2. Tạo hình chữ nhật để vẽ
     sf::RectangleShape debugRect(sf::Vector2f(40.f, 40.f));
@@ -1062,12 +1087,15 @@ void Game_Render::drawSelectMode(sf::RenderWindow& window) {
     window.draw(debugRect);
 
     // Nút quay lại (iconQuit đã load)
+    float sRet = 180.f / iconReturnTexture_.getSize().x;
+    applyHoverEffect(iconReturnSprite_, { { 30.f, 30.f},{ 40.f, 40.f} }, mPos, sRet);
     window.draw(iconReturnSprite_);
 }
 
 
 void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
     window.draw(menuBgSprite_);
+    sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
 
     sf::Font titleFont;
     if (!titleFont.openFromFile("assets/font/GulfsDisplay-SemiCondensed.ttf")) { // Đường dẫn font mới
@@ -1100,7 +1128,26 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
     for (int i = 0; i < 2 && (startIdx + i) < lineups_.size(); ++i) {
         auto& lineup = lineups_[startIdx + i];
         //lineup->sprite.setScale({ 0.5f, 0.5f }); // Chỉnh kích thước cho vừa
+        // 
+        // Tọa độ và vùng va chạm của card (Khớp với cardRect trong Controller)
+        sf::Vector2f cardPos = { 330.f + i * 345.f, 240.f };
+        sf::FloatRect cardRect({ 230.f + i * 345.f, 130.f }, { 200.f, 220.f });
+
         lineup->sprite.setPosition({ 330.f + i * 345.f, 240.f });
+
+        float baseScaleLineup = 200.f / lineup->texture->getSize().x;
+
+        // --- ĐOẠN FIX TẠI ĐÂY ---
+        if (lineup->id == selectedLineupId_) {
+            // Nếu đã chọn: Ép về scale và màu sắc bình thường, không chạy hiệu ứng Hover
+            lineup->sprite.setScale({ baseScaleLineup, baseScaleLineup });
+            lineup->sprite.setColor(sf::Color::White); // Luôn sáng rõ vì đã chọn
+        }
+        else {
+            // Nếu chưa chọn: Cho phép chạy hiệu ứng Hover
+            applyHoverEffect(lineup->sprite, cardRect, mPos, baseScaleLineup);
+        }
+
         window.draw(lineup->sprite);
 
         // --- ĐOẠN VẼ VIỀN XÁC NHẬN ---
@@ -1110,7 +1157,6 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
             highlight.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
             highlight.setOutlineColor(sf::Color::Yellow);    // Viền màu vàng rực rỡ
             highlight.setOutlineThickness(5.f);             // Độ dày viền 5px
-
             window.draw(highlight);
         }
 
@@ -1134,25 +1180,35 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
         //window.draw(name);
     }
 
+    // Lấy vị trí chuột hiện tại (cần quy đổi sang tọa độ World/Logic)
+    sf::FloatRect btnRect({ 420.f, 425.f }, { 160.f, 50.f });
+    sf::Sprite* currentBtn = (pickingForTeam_ == 1 && state_->getConfig().mode != GameMode::PvAI)
+        ? &nextBtnSprite_ : &startBtnSprite_;
+
+    float baseScaleBtn = 400.f / nextBtnTexture_.getSize().x;
+    applyHoverEffect(*currentBtn, btnRect, mPos, baseScaleBtn);
+    window.draw(*currentBtn);
+
+
     // Vẽ mũi tên chuyển trang và nút Start
     if (currentLineupPage_ > 0) {
+        sf::FloatRect prevRect({ 40.f, 210.f }, { 80.f, 40.f });
+        float sArrow = 200.f / arrowLeftTexture_.getSize().x;
+        applyHoverEffect(arrowLeftSprite_, prevRect, mPos, sArrow);
         window.draw(arrowLeftSprite_);
     }
 
     if ((currentLineupPage_ + 1) * 2 < lineups_.size()) {
+        sf::FloatRect nextRect({ 885.f, 210.f }, { 80.f, 40.f });
+        float sArrow = 200.f / arrowRightTexture_.getSize().x;
+        applyHoverEffect(arrowRightSprite_, nextRect, mPos, sArrow);
         window.draw(arrowRightSprite_);
     }
 
+    float sRet = 180.f / iconReturnTexture_.getSize().x;
+    applyHoverEffect(iconReturnSprite_, { {30.f, 30.f}, {40.f, 40.f} }, mPos, sRet);
     window.draw(iconReturnSprite_);
 
-    if (pickingForTeam_ == 1 && state_->getConfig().mode != GameMode::PvAI) {
-        // Nếu là đội 1 và còn phải chọn tiếp đội 2
-        window.draw(nextBtnSprite_);
-    }
-    else {
-        // Nếu là đội 2 hoặc chơi với máy (chọn xong là vào luôn)
-        window.draw(startBtnSprite_);
-    }
 
     // 2. Tạo hình chữ nhật để vẽ
     sf::RectangleShape debugRect(sf::Vector2f(80.f, 40.f));
@@ -1201,6 +1257,19 @@ void Game_Render::drawConfirmQuit(sf::RenderWindow& window) {
 
     ////// 4. Vẽ lên cửa sổ
     //window.draw(debugRect);
+}
+
+
+// Hàm bổ trợ xử lý hiệu ứng Hover cho Sprite
+void Game_Render::applyHoverEffect(sf::Sprite& sprite, sf::FloatRect bounds, sf::Vector2f mPos, float baseScale) {
+    if (bounds.contains(mPos)) {
+        sprite.setScale({ baseScale * 1.08f, baseScale * 1.08f }); // Phóng to 8%
+        sprite.setColor(sf::Color::White); // Sáng rõ
+    }
+    else {
+        sprite.setScale({ baseScale, baseScale }); // Về bình thường
+        sprite.setColor(sf::Color(230, 230, 230)); // Hơi tối nhẹ
+    }
 }
 
 void Game_Render::draw(sf::RenderWindow& window) {

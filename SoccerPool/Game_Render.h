@@ -86,6 +86,8 @@ private:
     void drawSelectLineup(sf::RenderWindow& window);
     void drawConfirmQuit(sf::RenderWindow& window);
 
+    void applyHoverEffect(sf::Sprite& sprite, sf::FloatRect bounds, sf::Vector2f mPos, float baseScale);
+
     GameState* state_ = nullptr;
     unsigned viewWidth_ = 1000;
     unsigned viewHeight_ = 600;
