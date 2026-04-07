@@ -3,3 +3,11 @@
 [Oo]bj/
 *.user
 *.suo
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.pdb
+*.exe
+*.obj
+*.log
