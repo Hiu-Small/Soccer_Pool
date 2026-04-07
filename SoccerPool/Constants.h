@@ -29,12 +29,12 @@ const float BALL_RADIUS = 12.f;
 const float PIECE_RADIUS = 25.f; //Bán kính quân cờ (cầu thủ).
 
 // Vật lý (tăng tốc: lực sút mạnh hơn, ma sát nhẹ hơn)
-const float FRICTION = 0.987f;
+const float FRICTION = 0.985f;
 const float MIN_VELOCITY_PIECE = 5.0f;
 const float MIN_VELOCITY_BALL =  10.5f;
 const float WALL_BOUNCE = 0.5f; //Độ nảy của tường.
 const float BALL_MASS = 1.0f; //Khối lượng.
-const float PIECE_MASS = 10.f; //Khối lượng.
+const float PIECE_MASS = 15.f; //Khối lượng.
 const float MAX_SHOOT_POWER = 600.f; //Lực sút tối đa
 const float DRAG_POWER_FACTOR = 3.0f; //Độ nhạy khi kéo chuột
 const float MAX_VISUAL_DRAG = 90.f; //Giới hạn độ dài hiển thị của đường kéo (vòng tròn max lực)
@@ -66,6 +66,7 @@ inline Formation getFormation(int lineUp) {
         case 4: return { 0, 3, 2 };//moon
 		case 5: return { 0, 2, 3 };//wave
         case 6: return { 1,1,1,2 };//edge
+        case 7: return { 2,2,1 };
         default: return { 1, 2, 2 };
     }
 }
@@ -98,6 +99,8 @@ const unsigned int SB_FONT_SIZE_TIME = 18;
 //enum class GameMode { PvP, PvAI, AIvsAI };
 //enum class GamePhase { MainMenu, SelectMode, Playing, GoalScored, GameOver };
 //enum class AIDifficulty { Easy, Medium, Hard };
+
+const float CORNER_RADIUS = 28.f;
 
 
 

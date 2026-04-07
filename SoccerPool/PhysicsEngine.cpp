@@ -5,312 +5,396 @@
 
 namespace SoccerPool {
 
-PhysicsEngine::PhysicsEngine(Field& field) : field_(field), pieces_(nullptr) {}
+    PhysicsEngine::PhysicsEngine(Field& field) : field_(field), pieces_(nullptr) {}
 
-void PhysicsEngine::update(float dt) {
-    if (ball_) ball_->update(dt);
-    if (pieces_)
-        for (auto& p : *pieces_) p->update(dt);
-    resolveCollisions();
-}
+    void PhysicsEngine::update(float dt) {
+        if (ball_) ball_->update(dt);
+        if (pieces_)
+            for (auto& p : *pieces_) p->update(dt);
+        resolveCollisions();
+    }
 
-bool PhysicsEngine::circleCircle(sf::Vector2f c1, float r1, sf::Vector2f c2, float r2) {
-    float dx = c2.x - c1.x, dy = c2.y - c1.y;
-    float distSq = dx * dx + dy * dy;
-    float sum = r1 + r2;
-    return distSq <= sum * sum;
-}
+    bool PhysicsEngine::circleCircle(sf::Vector2f c1, float r1, sf::Vector2f c2, float r2) {
+        float dx = c2.x - c1.x, dy = c2.y - c1.y;
+        float distSq = dx * dx + dy * dy;
+        float sum = r1 + r2;
+        return distSq <= sum * sum;
+    }
 
-void PhysicsEngine::elasticCollision2D(sf::Vector2f p1, sf::Vector2f v1, float m1,
-                                       sf::Vector2f p2, sf::Vector2f v2, float m2,
-                                       sf::Vector2f& outV1, sf::Vector2f& outV2) {
-    sf::Vector2f n = p2 - p1;
-    float len = std::sqrt(n.x * n.x + n.y * n.y);
-    if (len < 1e-6f) return;
-    n.x /= len;
-    n.y /= len;
-    float v1n = v1.x * n.x + v1.y * n.y;
-    float v2n = v2.x * n.x + v2.y * n.y;
-    float totalM = m1 + m2;
-    float newV1n = (v1n * (m1 - m2) + 2.f * m2 * v2n) / totalM;
-    float newV2n = (v2n * (m2 - m1) + 2.f * m1 * v1n) / totalM;
-    sf::Vector2f vt1(v1.x - n.x * v1n, v1.y - n.y * v1n);
-    sf::Vector2f vt2(v2.x - n.x * v2n, v2.y - n.y * v2n);
-    outV1 = sf::Vector2f(vt1.x + n.x * newV1n, vt1.y + n.y * newV1n);
-    outV2 = sf::Vector2f(vt2.x + n.x * newV2n, vt2.y + n.y * newV2n);
-}
+    void PhysicsEngine::elasticCollision2D(sf::Vector2f p1, sf::Vector2f v1, float m1,
+        sf::Vector2f p2, sf::Vector2f v2, float m2,
+        sf::Vector2f& outV1, sf::Vector2f& outV2) {
+        sf::Vector2f n = p2 - p1;
+        float len = std::sqrt(n.x * n.x + n.y * n.y);
+        if (len < 1e-6f) return;
 
-//void PhysicsEngine::resolveWallBall() {
-//    if (!ball_) return;
-//    auto& b = *ball_;
-//    sf::Vector2f p = b.getPosition();
-//    sf::Vector2f v = b.getVelocity();
-//    float r = BALL_RADIUS;
-//
-//    if (p.x - r < FIELD_MARGIN_X) {
-//        if (field_.isInGoal1(p)) return; // Vào lưới, không nảy
-//        b.setPosition(sf::Vector2f(r + FIELD_MARGIN_X, p.y));
-//        //b.setVelocity(sf::Vector2f(-v.x * WALL_BOUNCE, v.y * WALL_BOUNCE));
-//        b.setVelocity(sf::Vector2f(std::abs(v.x) * WALL_BOUNCE, v.y * WALL_BOUNCE));
-//    }
-//    if (p.x + r > FIELD_WIDTH - FIELD_MARGIN_X) {
-//        if (field_.isInGoal2(p)) return;
-//        b.setPosition(sf::Vector2f(FIELD_WIDTH - FIELD_MARGIN_X - r, p.y));
-//        //b.setVelocity(sf::Vector2f(-v.x * WALL_BOUNCE, v.y * WALL_BOUNCE));
-//        b.setVelocity(sf::Vector2f(-std::abs(v.x) * WALL_BOUNCE, v.y * WALL_BOUNCE));
-//    }
-//    if (p.y - r < FIELD_MARGIN_Y) {
-//        b.setPosition(sf::Vector2f(p.x, FIELD_MARGIN_Y + r));
-//        //b.setVelocity(sf::Vector2f(v.x * WALL_BOUNCE, -v.y * WALL_BOUNCE));
-//        b.setVelocity(sf::Vector2f(v.x * WALL_BOUNCE, std::abs(v.y) * WALL_BOUNCE));
-//    }
-//    if (p.y + r > FIELD_HEIGHT - FIELD_MARGIN_Y) {
-//        b.setPosition(sf::Vector2f(p.x, FIELD_HEIGHT - FIELD_MARGIN_Y - r));
-//        //b.setVelocity(sf::Vector2f(v.x * WALL_BOUNCE, -v.y * WALL_BOUNCE));
-//        b.setVelocity(sf::Vector2f(v.x * WALL_BOUNCE, -std::abs(v.y) * WALL_BOUNCE));
-//    }
-//}
+        // Chuẩn hóa vector pháp tuyến (Normal vector)
+        n.x /= len;
+        n.y /= len;
 
-void PhysicsEngine::resolveWallBall() {
-    if (!ball_) return;
-    auto& b = *ball_;
-    sf::Vector2f p = b.getPosition();
-    sf::Vector2f v = b.getVelocity();
-    float r = BALL_RADIUS;
-    bool hit = false;
+        // Tính vận tốc tương đối
+        sf::Vector2f rv = v2 - v1;
+        float velAlongNormal = rv.x * n.x + rv.y * n.y;
 
-    // Giới hạn biên sân có tính thêm Margin
-    float minX = FIELD_MARGIN_X + r;
-    float maxX = FIELD_WIDTH - FIELD_MARGIN_X - r;
-    float minY = FIELD_MARGIN_Y + r;
-    float maxY = FIELD_HEIGHT - FIELD_MARGIN_Y_BOTTOM - r;
+        // Nếu 2 vật đang tách xa nhau thì không va chạm
+        if (velAlongNormal > 0) {
+            outV1 = v1;
+            outV2 = v2;
+            return;
+        }
 
-    // Va chạm tường dọc (Trái/Phải)
-    if (p.x < minX) {
-        if (!field_.isInGoal1(p)) {
-            p.x = minX;
-            v.x = std::abs(v.x) * WALL_BOUNCE;
-            // Nếu vận tốc quá nhỏ, cho nó một cú hích nhẹ để thoát góc
-            if (std::abs(v.x) < 20.f) v.x = 30.f;
+        // Hệ số bồi hoàn (Restitution) - Giống Soccer Stars
+        float e = 0.85f;
+
+        // Tính toán lực xung (Impulse scalar)
+        float j = -(1 + e) * velAlongNormal;
+        j /= (1 / m1) + (1 / m2);
+
+        // Áp dụng lực xung lên các vector vận tốc
+        sf::Vector2f impulse = sf::Vector2f(j * n.x, j * n.y);
+
+        outV1 = sf::Vector2f(v1.x - (1 / m1) * impulse.x, v1.y - (1 / m1) * impulse.y);
+        outV2 = sf::Vector2f(v2.x + (1 / m2) * impulse.x, v2.y + (1 / m2) * impulse.y);
+    }
+
+    void PhysicsEngine::resolveWallBall() {
+        if (!ball_) return;
+        auto& b = *ball_;
+        sf::Vector2f p = b.getPosition();
+        sf::Vector2f v = b.getVelocity();
+        float r = BALL_RADIUS;
+
+        float minX = FIELD_MARGIN_X + r;
+        float maxX = FIELD_WIDTH - FIELD_MARGIN_X - r;
+        float minY = FIELD_MARGIN_Y + r;
+        float maxY = FIELD_HEIGHT - FIELD_MARGIN_Y_BOTTOM - r;
+
+        bool inGoalY = (p.y >= GOAL_Y_OFFSET && p.y <= GOAL_Y_OFFSET + GOAL_HEIGHT);
+        bool hit = false;
+        float ballWallRestitution = 0.9f;
+
+        // 1. KIỂM TRA VÀ PHẢN XẠ TRỤC X
+        if (p.x < minX) {
+            if (!inGoalY) {
+                p.x = minX;
+                v.x = std::abs(v.x) * ballWallRestitution;
+                hit = true;
+            }
+            else {
+                float netBackX = FIELD_MARGIN_X - 45.f;
+                if (p.x < netBackX + r) {
+                    p.x = netBackX + r;
+                    v.x = std::abs(v.x) * ballWallRestitution;
+                    hit = true;
+                }
+            }
+        }
+        else if (p.x > maxX) {
+            if (!inGoalY) {
+                p.x = maxX;
+                v.x = -std::abs(v.x) * ballWallRestitution;
+                hit = true;
+            }
+            else {
+                float netBackX = FIELD_WIDTH - FIELD_MARGIN_X + 45.f;
+                if (p.x > netBackX - r) {
+                    p.x = netBackX - r;
+                    v.x = -std::abs(v.x) * ballWallRestitution;
+                    hit = true;
+                }
+            }
+        }
+
+        // 2. KIỂM TRA VÀ PHẢN XẠ TRỤC Y SÂN CỎ
+        if (p.y < minY) {
+            p.y = minY;
+            v.y = std::abs(v.y) * ballWallRestitution;
             hit = true;
         }
-    }
-    else if (p.x > maxX) {
-        if (!field_.isInGoal2(p)) {
-            p.x = maxX;
-            v.x = -std::abs(v.x) * WALL_BOUNCE;
-            if (std::abs(v.x) < 20.f) v.x = -30.f;
+        else if (p.y > maxY) {
+            p.y = maxY;
+            v.y = -std::abs(v.y) * ballWallRestitution;
             hit = true;
+        }
+
+        // 3. TƯỜNG NGANG BÊN TRONG GÔN (HÔNG LƯỚI)
+        float goalTopY = GOAL_Y_OFFSET + r;
+        float goalBotY = GOAL_Y_OFFSET + GOAL_HEIGHT - r;
+
+        // ĐÃ FIX: Chỉ áp dụng nếu bóng đã qua vạch vôi (p.x <= FIELD_MARGIN_X)
+        if (p.x <= FIELD_MARGIN_X) {
+            if (p.y < goalTopY) {
+                p.y = goalTopY;
+                v.y = std::abs(v.y) * ballWallRestitution;
+                hit = true;
+            }
+            else if (p.y > goalBotY) {
+                p.y = goalBotY;
+                v.y = -std::abs(v.y) * ballWallRestitution;
+                hit = true;
+            }
+        }
+        else if (p.x >= FIELD_WIDTH - FIELD_MARGIN_X) {
+            if (p.y < goalTopY) {
+                p.y = goalTopY;
+                v.y = std::abs(v.y) * ballWallRestitution;
+                hit = true;
+            }
+            else if (p.y > goalBotY) {
+                p.y = goalBotY;
+                v.y = -std::abs(v.y) * ballWallRestitution;
+                hit = true;
+            }
+        }
+
+        if (hit) {
+            float speed = std::sqrt(v.x * v.x + v.y * v.y);
+            if (speed > 25.f) playCollideSoundFlag = true;
+            b.setPosition(p);
+            b.setVelocity(v);
         }
     }
 
-    // Va chạm tường ngang (Trên/Dưới)
-    if (p.y < minY) {
-        p.y = minY;
-        v.y = std::abs(v.y) * WALL_BOUNCE;
-        if (std::abs(v.y) < 20.f) v.y = 30.f;
-        hit = true;
-    }
-    else if (p.y > maxY) {
-        p.y = maxY;
-        v.y = -std::abs(v.y) * WALL_BOUNCE;
-        if (std::abs(v.y) < 20.f) v.y = -30.f;
-        hit = true;
-    }
+    void PhysicsEngine::resolveWallPiece(Piece& p_obj) {
+        sf::Vector2f p = p_obj.getPosition();
+        sf::Vector2f v = p_obj.getVelocity();
+        float r = PIECE_RADIUS;
+        bool hit = false;
+        float pieceWallRestitution = 0.6f;
 
-    if (hit) {
-        // Đặc biệt: Nếu bóng ở sát góc (cả 2 trục đều hit)
-        // Ta thêm một chút ngẫu nhiên để bóng không bị nảy luẩn quẩn
-        b.setPosition(p);
-        b.setVelocity(v);
-    }
-}
+        float minX = FIELD_MARGIN_X + r;
+        float maxX = FIELD_WIDTH - FIELD_MARGIN_X - r;
+        float minY = FIELD_MARGIN_Y + r;
+        float maxY = FIELD_HEIGHT - FIELD_MARGIN_Y_BOTTOM - r;
 
-//void PhysicsEngine::resolveWallPiece(Piece& p) {
-//    sf::Vector2f pos = p.getPosition();
-//    sf::Vector2f v = p.getVelocity();
-//    float r = PIECE_RADIUS;
-//
-//    if (pos.x - r < FIELD_MARGIN_X) {
-//        p.setPosition(sf::Vector2f(FIELD_MARGIN_X + r, pos.y));
-//        //p.setVelocity(sf::Vector2f(-v.x * WALL_BOUNCE, v.y * WALL_BOUNCE));
-//        p.setVelocity(sf::Vector2f(std::abs(v.x) * WALL_BOUNCE, v.y * WALL_BOUNCE));
-//    }
-//    if (pos.x + r > FIELD_WIDTH - FIELD_MARGIN_X) {
-//        p.setPosition(sf::Vector2f(FIELD_WIDTH - FIELD_MARGIN_X - r, pos.y));
-//        //p.setVelocity(sf::Vector2f(-v.x * WALL_BOUNCE, v.y * WALL_BOUNCE));
-//        p.setVelocity(sf::Vector2f(-std::abs(v.x) * WALL_BOUNCE, v.y * WALL_BOUNCE));
-//    }
-//    if (pos.y - r < FIELD_MARGIN_Y) {
-//        p.setPosition(sf::Vector2f(pos.x, FIELD_MARGIN_Y + r));
-//        //p.setVelocity(sf::Vector2f(v.x * WALL_BOUNCE, -v.y * WALL_BOUNCE));
-//        p.setVelocity(sf::Vector2f(v.x * WALL_BOUNCE, std::abs(v.y) * WALL_BOUNCE));
-//    }
-//    if (pos.y + r > FIELD_HEIGHT - FIELD_MARGIN_Y) {
-//        p.setPosition(sf::Vector2f(pos.x, FIELD_HEIGHT - FIELD_MARGIN_Y - r));
-//        //p.setVelocity(sf::Vector2f(v.x * WALL_BOUNCE, -v.y * WALL_BOUNCE));
-//        p.setVelocity(sf::Vector2f(v.x * WALL_BOUNCE, -std::abs(v.y) * WALL_BOUNCE));
-//    }
-//}
+        bool inGoalY = (p.y >= GOAL_Y_OFFSET && p.y <= GOAL_Y_OFFSET + GOAL_HEIGHT);
 
-void PhysicsEngine::resolveWallPiece(Piece& p_obj) {
-    sf::Vector2f p = p_obj.getPosition();
-    sf::Vector2f v = p_obj.getVelocity();
-    float r = PIECE_RADIUS;
-    bool hit = false;
+        // 1. KIỂM TRA VÀ PHẢN XẠ TRỤC X
+        if (p.x < minX) {
+            if (!inGoalY) {
+                p.x = minX;
+                v.x = std::abs(v.x) * pieceWallRestitution;
+                hit = true;
+            }
+            else {
+                float netBackX = FIELD_MARGIN_X - 50.f;
+                if (p.x < netBackX + r) {
+                    p.x = netBackX + r;
+                    v.x = std::abs(v.x) * pieceWallRestitution;
+                    hit = true;
+                }
+            }
+        }
+        else if (p.x > maxX) {
+            if (!inGoalY) {
+                p.x = maxX;
+                v.x = -std::abs(v.x) * pieceWallRestitution;
+                hit = true;
+            }
+            else {
+                float netBackX = FIELD_WIDTH - FIELD_MARGIN_X + 50.f;
+                if (p.x > netBackX - r) {
+                    p.x = netBackX - r;
+                    v.x = -std::abs(v.x) * pieceWallRestitution;
+                    hit = true;
+                }
+            }
+        }
 
-    if (p.x - r < FIELD_MARGIN_X) {
-        p.x = FIELD_MARGIN_X + r;
-        v.x = std::abs(v.x) * WALL_BOUNCE;
-        hit = true;
-    }
-    else if (p.x + r > FIELD_WIDTH - FIELD_MARGIN_X) {
-        p.x = FIELD_WIDTH - FIELD_MARGIN_X - r;
-        v.x = -std::abs(v.x) * WALL_BOUNCE;
-        hit = true;
-    }
+        // 2. KIỂM TRA VÀ PHẢN XẠ TRỤC Y SÂN CỎ
+        if (p.y < minY) {
+            p.y = minY;
+            v.y = std::abs(v.y) * pieceWallRestitution;
+            hit = true;
+        }
+        else if (p.y > maxY) {
+            p.y = maxY;
+            v.y = -std::abs(v.y) * pieceWallRestitution;
+            hit = true;
+        }
 
-    if (p.y - r < FIELD_MARGIN_Y) {
-        p.y = FIELD_MARGIN_Y + r;
-        v.y = std::abs(v.y) * WALL_BOUNCE;
-        hit = true;
-    }
-    else if (p.y + r > FIELD_HEIGHT - FIELD_MARGIN_Y_BOTTOM) {
-        p.y = FIELD_HEIGHT - FIELD_MARGIN_Y_BOTTOM - r;
-        v.y = -std::abs(v.y) * WALL_BOUNCE;
-        hit = true;
-    }
+        // 3. TƯỜNG NGANG BÊN TRONG GÔN (HÔNG LƯỚI)
+        float goalTopY = GOAL_Y_OFFSET + r;
+        float goalBotY = GOAL_Y_OFFSET + GOAL_HEIGHT - r;
 
-    if (hit) {
-        p_obj.setPosition(p);
-        p_obj.setVelocity(v);
-    }
-}
+        // ĐÃ FIX: Chỉ áp dụng nếu cầu thủ đã qua vạch vôi (p.x <= FIELD_MARGIN_X)
+        // Ngăn chặn việc cầu thủ đứng ở vạch vôi bị "giật" và hút vào hông lưới
+        if (p.x <= FIELD_MARGIN_X) {
+            if (p.y < goalTopY) {
+                p.y = goalTopY;
+                v.y = std::abs(v.y) * pieceWallRestitution;
+                hit = true;
+            }
+            else if (p.y > goalBotY) {
+                p.y = goalBotY;
+                v.y = -std::abs(v.y) * pieceWallRestitution;
+                hit = true;
+            }
+        }
+        else if (p.x >= FIELD_WIDTH - FIELD_MARGIN_X) {
+            if (p.y < goalTopY) {
+                p.y = goalTopY;
+                v.y = std::abs(v.y) * pieceWallRestitution;
+                hit = true;
+            }
+            else if (p.y > goalBotY) {
+                p.y = goalBotY;
+                v.y = -std::abs(v.y) * pieceWallRestitution;
+                hit = true;
+            }
+        }
 
-//void PhysicsEngine::resolveBallPiece(Ball& b, Piece& p) {
-//    if (!circleCircle(b.getPosition(), BALL_RADIUS, p.getPosition(), PIECE_RADIUS)) return;
-//    sf::Vector2f p1 = b.getPosition(), p2 = p.getPosition();
-//    sf::Vector2f v1 = b.getVelocity(), v2 = p.getVelocity();
-//    sf::Vector2f outV1, outV2;
-//    elasticCollision2D(p1, v1, BALL_MASS, p2, v2, PIECE_MASS, outV1, outV2);
-//    b.setVelocity(outV1);
-//    p.setVelocity(outV2);
-//    // Tách ra khỏi overlap
-//    sf::Vector2f d = p1 - p2;
-//    float len = std::sqrt(d.x * d.x + d.y * d.y);
-//    float overlap = BALL_RADIUS + PIECE_RADIUS - len;
-//    if (len > 1e-6f && overlap > 0.f) {
-//        d.x /= len;
-//        d.y /= len;
-//        b.setPosition(sf::Vector2f(p1.x + d.x * overlap, p1.y + d.y * overlap));
-//    }
-//}
-
-void PhysicsEngine::resolveBallPiece(Ball& b, Piece& p) {
-    if (!circleCircle(b.getPosition(), BALL_RADIUS, p.getPosition(), PIECE_RADIUS)) return;
-
-    sf::Vector2f p1 = b.getPosition(), p2 = p.getPosition();
-    sf::Vector2f v1 = b.getVelocity(), v2 = p.getVelocity();
-
-    // 1. TÁCH VỊ TRÍ TRƯỚC (Penetration Resolution)
-    sf::Vector2f d = p1 - p2;
-    float len = std::sqrt(d.x * d.x + d.y * d.y);
-    float overlap = BALL_RADIUS + PIECE_RADIUS - len;
-
-    if (len > 1e-6f && overlap > 0.f) {
-        d.x /= len;
-        d.y /= len;
-        // Đẩy cả 2 dạt ra dựa theo tỷ lệ khối lượng để bóng không bị trôi xuyên qua
-        float totalMass = BALL_MASS + PIECE_MASS;
-        float moveBall = overlap * (PIECE_MASS / totalMass);
-        float movePiece = overlap * (BALL_MASS / totalMass);
-        b.setPosition(sf::Vector2f(p1.x + d.x * moveBall, p1.y + d.y * moveBall));
-        p.setPosition(sf::Vector2f(p2.x - d.x * movePiece, p2.y - d.y * movePiece));
+        if (hit) {
+            p_obj.setPosition(p);
+            p_obj.setVelocity(v);
+        }
     }
 
-    // 2. CHỈ TÍNH VẬN TỐC KHI CHÚNG LAO VÀO NHAU (Chống lỗi dính nhau)
-    sf::Vector2f n = p2 - p1;
-    // Tích vô hướng của vận tốc tương đối và vector pháp tuyến
-    float dotProduct = (v2.x - v1.x) * n.x + (v2.y - v1.y) * n.y;
+    void PhysicsEngine::resolveBallPiece(Ball& b, Piece& p) {
+        if (!circleCircle(b.getPosition(), BALL_RADIUS, p.getPosition(), PIECE_RADIUS)) return;
 
-    if (dotProduct < 0.f) { // Trong toán vector, nếu Tích vô hướng < 0, nghĩa là 2 vật đang di chuyển ngược chiều nhau
+        sf::Vector2f p1 = b.getPosition(), p2 = p.getPosition();
+        sf::Vector2f v1 = b.getVelocity(), v2 = p.getVelocity();
+
+        sf::Vector2f d = p1 - p2;
+        float len = std::sqrt(d.x * d.x + d.y * d.y);
+        float overlap = BALL_RADIUS + PIECE_RADIUS - len;
+
+        if (len > 1e-6f && overlap > 0.f) {
+            d.x /= len;
+            d.y /= len;
+            float invMass1 = 1.0f / BALL_MASS;
+            float invMass2 = 1.0f / PIECE_MASS;
+            float totalInvMass = invMass1 + invMass2;
+
+            const float percent = 0.8f;
+            sf::Vector2f correction = sf::Vector2f(d.x * (overlap / totalInvMass) * percent,
+                d.y * (overlap / totalInvMass) * percent);
+
+            b.setPosition(sf::Vector2f(p1.x + correction.x * invMass1, p1.y + correction.y * invMass1));
+            p.setPosition(sf::Vector2f(p2.x - correction.x * invMass2, p2.y - correction.y * invMass2));
+        }
+
         sf::Vector2f outV1, outV2;
-        elasticCollision2D(p1, v1, BALL_MASS, p2, v2, PIECE_MASS, outV1, outV2);
-        b.setVelocity(outV1 * COLLISION_RESISTANCE_BALL);
-        p.setVelocity(outV2 * COLLISION_RESISTANCE_BALL);
-    }
-}
+        elasticCollision2D(b.getPosition(), v1, BALL_MASS, p.getPosition(), v2, PIECE_MASS, outV1, outV2);
 
-//void PhysicsEngine::resolvePiecePiece(Piece& a, Piece& b) {
-//    if (!circleCircle(a.getPosition(), PIECE_RADIUS, b.getPosition(), PIECE_RADIUS)) return;
-//    sf::Vector2f p1 = a.getPosition(), p2 = b.getPosition();
-//    sf::Vector2f v1 = a.getVelocity(), v2 = b.getVelocity();
-//    sf::Vector2f outV1, outV2;
-//    elasticCollision2D(p1, v1, PIECE_MASS, p2, v2, PIECE_MASS, outV1, outV2);
-//    a.setVelocity(outV1);
-//    b.setVelocity(outV2);
-//    sf::Vector2f d = p1 - p2;
-//    float len = std::sqrt(d.x * d.x + d.y * d.y);
-//    float overlap = 2.f * PIECE_RADIUS - len;
-//    if (len > 1e-6f && overlap > 0.f) {
-//        d.x /= len;
-//        d.y /= len;
-//        float half = overlap * 0.5f;
-//        a.setPosition(sf::Vector2f(p1.x + d.x * half, p1.y + d.y * half));
-//        b.setPosition(sf::Vector2f(p2.x - d.x * half, p2.y - d.y * half));
-//    }
-//}
+        b.setVelocity(outV1);
+        p.setVelocity(outV2);
 
-void PhysicsEngine::resolvePiecePiece(Piece& a, Piece& b) {
-    if (!circleCircle(a.getPosition(), PIECE_RADIUS, b.getPosition(), PIECE_RADIUS)) return;
-
-    sf::Vector2f p1 = a.getPosition(), p2 = b.getPosition();
-    sf::Vector2f v1 = a.getVelocity(), v2 = b.getVelocity();
-
-    // 1. TÁCH VỊ TRÍ TRƯỚC
-    sf::Vector2f d = p1 - p2;
-    float len = std::sqrt(d.x * d.x + d.y * d.y);
-    float overlap = 2.f * PIECE_RADIUS - len;
-
-    if (len > 1e-6f && overlap > 0.f) {
-        d.x /= len;
-        d.y /= len;
-        float half = overlap * 0.5f;
-        a.setPosition(sf::Vector2f(p1.x + d.x * half, p1.y + d.y * half));
-        b.setPosition(sf::Vector2f(p2.x - d.x * half, p2.y - d.y * half));
+        float ballSpeed = std::sqrt(v1.x * v1.x + v1.y * v1.y);
+        if (ballSpeed < 1.0f) playHitSoundFlag = true;
+        else playCollideSoundFlag = true;
     }
 
-    // 2. CHỈ TÍNH VẬN TỐC KHI LAO VÀO NHAU
-    sf::Vector2f n = p2 - p1;
-    float dotProduct = (v2.x - v1.x) * n.x + (v2.y - v1.y) * n.y;
+    void PhysicsEngine::resolvePiecePiece(Piece& a, Piece& b) {
+        if (!circleCircle(a.getPosition(), PIECE_RADIUS, b.getPosition(), PIECE_RADIUS)) return;
 
-    if (dotProduct < 0.f) {
+        sf::Vector2f p1 = a.getPosition(), p2 = b.getPosition();
+        sf::Vector2f v1 = a.getVelocity(), v2 = b.getVelocity();
+
+        sf::Vector2f d = p1 - p2;
+        float len = std::sqrt(d.x * d.x + d.y * d.y);
+        float overlap = 2.f * PIECE_RADIUS - len;
+
+        if (len > 1e-6f && overlap > 0.f) {
+            d.x /= len;
+            d.y /= len;
+            float half = (overlap * 0.8f) * 0.5f;
+            a.setPosition(sf::Vector2f(p1.x + d.x * half, p1.y + d.y * half));
+            b.setPosition(sf::Vector2f(p2.x - d.x * half, p2.y - d.y * half));
+        }
+
         sf::Vector2f outV1, outV2;
-        elasticCollision2D(p1, v1, PIECE_MASS, p2, v2, PIECE_MASS, outV1, outV2);
-        a.setVelocity(outV1 * COLLISION_RESISTANCE_PIECE);
-        b.setVelocity(outV2 * COLLISION_RESISTANCE_PIECE);
-    }
-}
+        elasticCollision2D(a.getPosition(), v1, PIECE_MASS, b.getPosition(), v2, PIECE_MASS, outV1, outV2);
 
-void PhysicsEngine::resolveCollisions() {
-    resolveWallBall();
-    if (pieces_) {
-        for (auto& p : *pieces_) resolveWallPiece(*p);
+        a.setVelocity(outV1);
+        b.setVelocity(outV2);
+
+        float vt1 = std::sqrt(v1.x * v1.x + v1.y * v1.y);
+        float vt2 = std::sqrt(v2.x * v2.x + v2.y * v2.y);
+        if (vt1 > 30.f || vt2 > 30.f) playCollideSoundFlag = true;
+    }
+
+    // HÀM CHUNG ĐỂ XỬ LÝ VA CHẠM VỚI CỘT DỌC HÌNH TRÒN
+    void PhysicsEngine::resolveCircleCollision(sf::Vector2f& pos, sf::Vector2f& vel, float radius, sf::Vector2f postPos, float restitution) {
+        float postRadius = 3.0f; // Bán kính cột dọc (rất nhỏ để làm mượt góc vuông)
+
+        if (circleCircle(pos, radius, postPos, postRadius)) {
+            sf::Vector2f d = pos - postPos;
+            float len = std::sqrt(d.x * d.x + d.y * d.y);
+            if (len > 1e-6f) {
+                d.x /= len;
+                d.y /= len;
+
+                float overlap = radius + postRadius - len;
+                pos.x += d.x * overlap;
+                pos.y += d.y * overlap;
+
+                float dotProduct = vel.x * d.x + vel.y * d.y;
+                if (dotProduct < 0.f) {
+                    vel.x = (vel.x - 2.f * dotProduct * d.x) * restitution;
+                    vel.y = (vel.y - 2.f * dotProduct * d.y) * restitution;
+                }
+            }
+        }
+    }
+
+    void PhysicsEngine::resolveCollisions() {
+        if (pieces_) {
+            for (size_t i = 0; i < pieces_->size(); ++i)
+                for (size_t j = i + 1; j < pieces_->size(); ++j)
+                    resolvePiecePiece(*(*pieces_)[i], *(*pieces_)[j]);
+
+            if (ball_) {
+                for (auto& p : *pieces_) resolveBallPiece(*ball_, *p);
+            }
+        }
+
+        // ƯU TIÊN 1: XỬ LÝ 4 CỘT DỌC GÔN (Tránh kẹt góc vuông)
+        sf::Vector2f postL_Top(FIELD_MARGIN_X, GOAL_Y_OFFSET);
+        sf::Vector2f postL_Bot(FIELD_MARGIN_X, GOAL_Y_OFFSET + GOAL_HEIGHT);
+        sf::Vector2f postR_Top(FIELD_WIDTH - FIELD_MARGIN_X, GOAL_Y_OFFSET);
+        sf::Vector2f postR_Bot(FIELD_WIDTH - FIELD_MARGIN_X, GOAL_Y_OFFSET + GOAL_HEIGHT);
+
         if (ball_) {
-            for (auto& p : *pieces_) resolveBallPiece(*ball_, *p);
+            sf::Vector2f bPos = ball_->getPosition();
+            sf::Vector2f bVel = ball_->getVelocity();
+            float bRestitution = 0.85f;
+            resolveCircleCollision(bPos, bVel, BALL_RADIUS, postL_Top, bRestitution);
+            resolveCircleCollision(bPos, bVel, BALL_RADIUS, postL_Bot, bRestitution);
+            resolveCircleCollision(bPos, bVel, BALL_RADIUS, postR_Top, bRestitution);
+            resolveCircleCollision(bPos, bVel, BALL_RADIUS, postR_Bot, bRestitution);
+            ball_->setPosition(bPos);
+            ball_->setVelocity(bVel);
         }
-        for (size_t i = 0; i < pieces_->size(); ++i)
-            for (size_t j = i + 1; j < pieces_->size(); ++j)
-                resolvePiecePiece(*(*pieces_)[i], *(*pieces_)[j]);
-    }
-}
 
-int PhysicsEngine::checkGoal() const {
-    if (!ball_) return 0;
-    sf::Vector2f p = ball_->getPosition();
-    if (field_.isInGoal1(p)) return 1;  // Bàn thắng cho Team2 (bóng vào lưới Team1)
-    if (field_.isInGoal2(p)) return 2;  // Bàn thắng cho Team1
-    return 0;
-}
+        if (pieces_) {
+            float pRestitution = 0.6f;
+            for (auto& p : *pieces_) {
+                sf::Vector2f pPos = p->getPosition();
+                sf::Vector2f pVel = p->getVelocity();
+                resolveCircleCollision(pPos, pVel, PIECE_RADIUS, postL_Top, pRestitution);
+                resolveCircleCollision(pPos, pVel, PIECE_RADIUS, postL_Bot, pRestitution);
+                resolveCircleCollision(pPos, pVel, PIECE_RADIUS, postR_Top, pRestitution);
+                resolveCircleCollision(pPos, pVel, PIECE_RADIUS, postR_Bot, pRestitution);
+                p->setPosition(pPos);
+                p->setVelocity(pVel);
+            }
+        }
+
+        // ƯU TIÊN 2: XỬ LÝ CÁC VÁCH TƯỜNG (AABB)
+        resolveWallBall();
+        if (pieces_) {
+            for (auto& p : *pieces_) resolveWallPiece(*p);
+        }
+    }
+
+    int PhysicsEngine::checkGoal() const {
+        if (!ball_) return 0;
+        sf::Vector2f p = ball_->getPosition();
+        if (field_.isInGoal1(p)) return 1;
+        if (field_.isInGoal2(p)) return 2;
+        return 0;
+    }
 
 } // namespace SoccerPool

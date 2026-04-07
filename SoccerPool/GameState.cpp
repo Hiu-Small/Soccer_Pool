@@ -18,6 +18,8 @@ GameState::GameState()
 void GameState::startNewMatch() {
     score1_ = 0;
     score2_ = 0;
+    shotsFired_ = 0; 
+    isFoul_ = false;
     currentTurn_ = Team::Team1;
     phase_ = GamePhase::Playing;
     resetTurnTimer();
@@ -178,6 +180,31 @@ void GameState::spawnPieces() {
                 }
                 else if (rowCount == 2) {
                     float spread = 145.f;
+                    y = CENTER_Y + (i - 0.5f) * spread;
+                }
+                auto p = std::make_shared<Piece>(idCounter++, Team::Team1);
+                p->setPosition({ x, y });
+                p->setVelocity({ 0.f, 0.f });
+                pieces_.push_back(p);
+            }
+        }
+    }
+    if (lineUp == "2-2-1-") {
+        for (int j = 0; j < form1.size(); ++j) {
+            int rowCount = form1[j];
+            float currentRS = ROW_SPACING;
+            float x = START_X + j * currentRS + 50.f;
+            for (int i = 0; i < rowCount; ++i) {
+                float y;
+                if (rowCount == 1) {
+                    y = CENTER_Y;
+                }
+                else if (rowCount == 2 && j == 0) {
+                    float spread = 230.f;
+                    y = CENTER_Y + (i - 0.5f) * spread;
+                }
+                else if (rowCount == 2 && j == 1) {
+                    float spread = 140.f;
                     y = CENTER_Y + (i - 0.5f) * spread;
                 }
                 auto p = std::make_shared<Piece>(idCounter++, Team::Team1);
@@ -358,6 +385,31 @@ void GameState::spawnPieces() {
             }
         }
     }
+    if (lineUp2 == "2-2-1-") {
+        for (int j = 0; j < form2.size(); ++j) {
+            int rowCount = form2[j];
+            float currentRS = ROW_SPACING;
+            float x = FIELD_WIDTH - (START_X + j * currentRS) - 50.f;
+            for (int i = 0; i < rowCount; ++i) {
+                float y;
+                if (rowCount == 1) {
+                    y = CENTER_Y;
+                }
+                else if (rowCount == 2 && j == 0) {
+                    float spread = 230.f;
+                    y = CENTER_Y + (i - 0.5f) * spread;
+                }
+                else if (rowCount == 2 && j == 1) {
+                    float spread = 140.f;
+                    y = CENTER_Y + (i - 0.5f) * spread;
+                }
+                auto p = std::make_shared<Piece>(idCounter++, Team::Team2);
+                p->setPosition({ x, y });
+                p->setVelocity({ 0.f, 0.f });
+                pieces_.push_back(p);
+            }
+        }
+    }
     //for (int rowCount : form2) {
     //    float x = FIELD_WIDTH - START_X - rowIndex * ROW_SPACING; // Đối xứng từ phải sang
 
@@ -386,50 +438,167 @@ void GameState::spawnBall() {
 }
 
 void GameState::resetPositionsAfterGoal() {
+    shotsFired_ = 0; 
+    isFoul_ = false;
+    // --- THÊM LOGIC KIỂM TRA WIN VÀO ĐÂY ---
+    int s1 = getScore1(), s2 = getScore2();
+    if (s1 >= config_.goalsToWin || s2 >= config_.goalsToWin) {
+        phase_ = GamePhase::GameOver;
+        if (onGameOver_) onGameOver_(s1 >= config_.goalsToWin ? Team::Team1 : Team::Team2);
+        return; // Dừng luôn, chuyển sang Game Over và không reset bóng/cầu thủ nữa!
+    }
+    // ----------------------------------------
+
     pieces_.clear();
     spawnPieces();
     spawnBall();
     phase_ = GamePhase::Playing;
 }
 
+//bool GameState::isEverythingStopped() const {
+//    if (ball_->isMoving()) return false;
+//    for (const auto& p : pieces_)
+//        if (p->isMoving()) return false;
+//    return true;
+//}
+
 bool GameState::isEverythingStopped() const {
-    if (ball_->isMoving()) return false;
-    for (const auto& p : pieces_)
-        if (p->isMoving()) return false;
+    const float EPSILON = 0.05f; // Ngưỡng vận tốc coi là dừng hẳn
+
+    sf::Vector2f bVel = ball_->getVelocity();
+    if (std::abs(bVel.x) > EPSILON || std::abs(bVel.y) > EPSILON) return false;
+
+    for (const auto& p : pieces_) {
+        sf::Vector2f pVel = p->getVelocity();
+        if (std::abs(pVel.x) > EPSILON || std::abs(pVel.y) > EPSILON) return false;
+    }
     return true;
 }
+
+//void GameState::update(float dt) {
+//    if (phase_ != GamePhase::Playing) return;
+//
+//    if (isEverythingStopped()) {
+//        // ---> THÊM LOGIC ĐẨY CẦU THỦ RA KHỎI KHUNG THÀNH TẠI ĐÂY <---
+//        // Quá 1/2 thân tức là tâm (pos.x) lọt qua vạch vôi (FIELD_MARGIN_X)
+//        for (auto& p : pieces_) {
+//            sf::Vector2f pos = p->getPosition();
+//            bool inGoal1 = (pos.x < FIELD_MARGIN_X);
+//            bool inGoal2 = (pos.x > FIELD_WIDTH - FIELD_MARGIN_X);
+//
+//            if (inGoal1) {
+//                // Đẩy ra ngoài vạch 50px
+//                pos.x = FIELD_MARGIN_X + PIECE_RADIUS + 50.f;
+//                p->setPosition(pos);
+//            }
+//            else if (inGoal2) {
+//                pos.x = FIELD_WIDTH - FIELD_MARGIN_X - PIECE_RADIUS - 50.f;
+//                p->setPosition(pos);
+//            }
+//        }
+//        // -------------------------------------------------------------
+//
+//        turnTimer_ -= dt;
+//
+//        // 2. Nếu hết thời gian (về 0)
+//        if (turnTimer_ <= 0.f) {
+//            switchTurn(); // Hàm này của bạn sẽ đổi đội và gọi resetTurnTimer()
+//        }
+//    }
+//
+//    physics_.update(dt);
+//
+//
+//    int goal = physics_.checkGoal();
+//    if (goal != 0) {
+//        phase_ = GamePhase::GoalScored;
+//        // BẮT LỖI FOUL: Nếu sút vào ngay từ cú chạm đầu tiên
+//        if (shotsFired_ <= 1) {
+//            isFoul_ = true;
+//            // Phạt: Đổi quyền giao bóng cho đối thủ, không cộng điểm
+//            switchTurn(currentTurn_ == Team::Team1 ? Team::Team2 : Team::Team1);
+//            if (onGoal_) onGoal_(Team::None);
+//        }
+//        else {
+//			isFoul_ = false;
+//            if (goal == 1) {
+//                addGoalTeam2();
+//                switchTurn(Team::Team1);
+//                if (onGoal_) onGoal_(Team::Team2);
+//            }
+//            else {
+//                addGoalTeam1();
+//                switchTurn(Team::Team2);
+//                if (onGoal_) onGoal_(Team::Team1);
+//            }
+//        }
+//    }
+//}
+
 
 void GameState::update(float dt) {
     if (phase_ != GamePhase::Playing) return;
 
     if (isEverythingStopped()) {
-        turnTimer_ -= dt;
+        // CHỈ đẩy cầu thủ ra khỏi khung thành KHI mọi thứ đã dừng lại hẳn
+        resolveGoalCollisions();
 
-        // 2. Nếu hết thời gian (về 0)
+        turnTimer_ -= dt;
         if (turnTimer_ <= 0.f) {
-            switchTurn(); // Hàm này của bạn sẽ đổi đội và gọi resetTurnTimer()
+            switchTurn();
         }
     }
 
     physics_.update(dt);
+    // ... logic kiểm tra bàn thắng giữ nguyên ...
 
 
     int goal = physics_.checkGoal();
     if (goal != 0) {
         phase_ = GamePhase::GoalScored;
-        if (goal == 1) {
-            addGoalTeam2();
-            switchTurn(Team::Team1);
-            if (onGoal_) onGoal_(Team::Team2);
-        } else {
-            addGoalTeam1();
-            switchTurn(Team::Team2);
-            if (onGoal_) onGoal_(Team::Team1);
+        // BẮT LỖI FOUL: Nếu sút vào ngay từ cú chạm đầu tiên
+        if (shotsFired_ <= 1) {
+            isFoul_ = true;
+            // Phạt: Đổi quyền giao bóng cho đối thủ, không cộng điểm
+            switchTurn(currentTurn_ == Team::Team1 ? Team::Team2 : Team::Team1);
+            if (onGoal_) onGoal_(Team::None);
         }
-        int s1 = getScore1(), s2 = getScore2();
-        if (s1 >= config_.goalsToWin || s2 >= config_.goalsToWin) {
-            phase_ = GamePhase::GameOver;
-            if (onGameOver_) onGameOver_(s1 >= config_.goalsToWin ? Team::Team1 : Team::Team2);
+        else {
+            isFoul_ = false;
+            if (goal == 1) {
+                addGoalTeam2();
+                switchTurn(Team::Team1);
+                if (onGoal_) onGoal_(Team::Team2);
+            }
+            else {
+                addGoalTeam1();
+                switchTurn(Team::Team2);
+                if (onGoal_) onGoal_(Team::Team1);
+            }
+        }
+    }
+}
+
+void GameState::resolveGoalCollisions() {
+    for (auto& p : pieces_) {
+        sf::Vector2f pos = p->getPosition();
+        // Kiểm tra xem tâm cầu thủ đã vượt qua vạch vôi chưa
+        bool inGoal1 = (pos.x < FIELD_MARGIN_X);
+        bool inGoal2 = (pos.x > FIELD_WIDTH - FIELD_MARGIN_X);
+
+        if (inGoal1) {
+            // Đẩy ra ngoài vạch gôn 1 khoảng bảo vệ
+            pos.x = FIELD_MARGIN_X + PIECE_RADIUS + 10.f;
+            p->setPosition(pos);
+            // Triệt tiêu vận tốc hướng vào trong gôn
+            sf::Vector2f v = p->getVelocity();
+            if (v.x < 0) p->setVelocity({ 0.f, v.y });
+        }
+        else if (inGoal2) {
+            pos.x = FIELD_WIDTH - FIELD_MARGIN_X - PIECE_RADIUS - 10.f;
+            p->setPosition(pos);
+            sf::Vector2f v = p->getVelocity();
+            if (v.x > 0) p->setVelocity({ 0.f, v.y });
         }
     }
 }

@@ -42,9 +42,6 @@
     <ClCompile Include="GameState.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
-    <ClCompile Include="Disk.cpp">
-      <Filter>Source Files\Model</Filter>
-    </ClCompile>
     <ClCompile Include="AIPlayer.cpp">
       <Filter>Source Files\Controller</Filter>
     </ClCompile>
@@ -72,9 +69,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Disk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AIPlayer.h">

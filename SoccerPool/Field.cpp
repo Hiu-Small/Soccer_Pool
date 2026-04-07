@@ -9,14 +9,14 @@ Field::Field() {}
 
 // Ghi bàn khi mép bóng (hoặc tâm) đã qua vạch khung thành
 bool Field::isInGoal1(sf::Vector2f pos) const {
-    if (pos.x > FIELD_MARGIN_X + BALL_RADIUS) return false;
+    if (pos.x + BALL_RADIUS >= FIELD_MARGIN_X) return false;
     float gy = GOAL_Y_OFFSET;
 	//printf("Checking Goal1: pos=(%.1f, %.1f), gy=%.1f, gy+height=%.1f\n", pos.x, pos.y, gy, gy + GOAL_HEIGHT);
     return pos.y >= gy && pos.y <= gy + GOAL_HEIGHT;
 }
 
 bool Field::isInGoal2(sf::Vector2f pos) const {
-    if (pos.x < (FIELD_WIDTH - FIELD_MARGIN_X) - BALL_RADIUS) return false;
+    if (pos.x - BALL_RADIUS <= FIELD_WIDTH - FIELD_MARGIN_X) return false;
     float gy = GOAL_Y_OFFSET;
 	//printf("Checking Goal2: pos=(%.1f, %.1f), gy=%.1f, gy+height=%.1f\n", pos.x, pos.y, gy, gy + GOAL_HEIGHT);
     return pos.y >= gy && pos.y <= gy + GOAL_HEIGHT;

@@ -7,10 +7,10 @@
 
 namespace SoccerPool {
 
-Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTexture_), team1Sprite_(team1Texture_), team2Sprite_(team2Texture_), sbSprite_(sbTexture_), menuBgSprite_(menuBgTexture_), ball8Sprite_(ball8Texture_), goalMenuSprite_(goalMenuTexture_), ballMenuSprite_(ballMenuTexture_), btnPlaySprite_(btnPlayTexture_), btnOptionsSprite_(btnOptionsTexture_), iconQuitSprite_(iconQuitTexture_), iconInforSprite_(iconInforTexture_), iconReturnSprite_(iconReturnTexture_), pvpSprite_(pvpTexture_), pvaiSprite_(pvaiTexture_), aivaiSprite_(aivaiTexture_), arrowLeftSprite_(arrowLeftTexture_), arrowRightSprite_(arrowRightTexture_), startBtnSprite_(startBtnTexture_), nextBtnSprite_(nextBtnTexture_), msbQuitSprite_(msbQuitTexture_) {
+    Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTexture_), team1Sprite_(team1Texture_), team2Sprite_(team2Texture_), sbSprite_(sbTexture_), menuBgSprite_(menuBgTexture_), ball8Sprite_(ball8Texture_), goalMenuSprite_(goalMenuTexture_), ballMenuSprite_(ballMenuTexture_), btnPlaySprite_(btnPlayTexture_), btnOptionsSprite_(btnOptionsTexture_), iconQuitSprite_(iconQuitTexture_), iconInforSprite_(iconInforTexture_), iconReturnSprite_(iconReturnTexture_), pvpSprite_(pvpTexture_), pvaiSprite_(pvaiTexture_), aivaiSprite_(aivaiTexture_), arrowLeftSprite_(arrowLeftTexture_), arrowRightSprite_(arrowRightTexture_), startBtnSprite_(startBtnTexture_), nextBtnSprite_(nextBtnTexture_), msbQuitSprite_(msbQuitTexture_), slideBarSoundSprite_(slideBarSoundTexture_), slideNodeSoundSprite_(slideNodeSoundTexture_), slideBarSFXSprite_(slideBarSFXTexture_), slideNodeSFXSprite_(slideNodeSFXTexture_), optionsKhungSprite_(optionsKhungTexture_), bgMusic_(), hitSoundKick_(hitBufferKick_), hitSoundCollide_(hitBufferCollide_), whistleSound_(whistleBuffer_), goalScoreSound_(goalScoreBuffer_), goalText_(goalFont_), goalMusicSound_(goalMusicBuffer_), iconOptionsSprite_(iconOptionsTexture_) {
     // 1. Cố gắng load file ảnh
     // Đảm bảo bạn đã tạo thư mục 'assets' và bỏ file ảnh vào đó!
-    if (!fieldTexture_.loadFromFile("assets/field_4.png")) {
+    if (!fieldTexture_.loadFromFile("assets/field_5.png")) {
         // Nếu không load được, báo lỗi ra màn hình console
         std::cerr << "LOI: Khong the load anh san bong (assets/field_4.png)!" << std::endl;
         isFieldLoaded_ = false;
@@ -169,6 +169,10 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
     // Load font chữ (Dùng lại Arial hoặc load font thể thao)
     if (!sbFont_.openFromFile("C:/Windows/Fonts/arial.ttf")) { /* báo lỗi */ }
 
+    if (!goalFont_.openFromFile("assets/font/GulfsDisplay-SemiCondensed.ttf")) {
+        std::cerr << "LOI: Khong load duoc font GulfsDisplay!" << std::endl;
+    }
+
 
 
     // Load các thành phần Menu bóc tách
@@ -223,6 +227,24 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
     if (!msbQuitTexture_.loadFromFile("assets/msb_quit.png")) {
         std::cerr << "Khong the load file: assets/msb_quit.png" << std::endl;
     }
+    if (!slideBarSoundTexture_.loadFromFile("assets/slidebar.png")) {
+        std::cerr << "Khong the load file: assets/slide_bar.png" << std::endl;
+	}
+    if (!slideNodeSoundTexture_.loadFromFile("assets/slidenode.png")) {
+        std::cerr << "Khong the load file: assets/slide_node.png" << std::endl;
+    }
+    if (!slideBarSFXTexture_.loadFromFile("assets/slidebar.png")) {
+        std::cerr << "Khong the load file: assets/slide_bar.png" << std::endl;
+    }
+    if (!slideNodeSFXTexture_.loadFromFile("assets/slidenode.png")) {
+        std::cerr << "Khong the load file: assets/slide_node.png" << std::endl;
+	}
+    if (!optionsKhungTexture_.loadFromFile("assets/options_khung.png")) {
+        std::cerr << "Khong the load file: assets/options_khung.png" << std::endl;
+	}
+    if (!iconOptionsTexture_.loadFromFile("assets/icon_options.png")) {
+        std::cerr << "Khong the load file: assets/icon_options.png" << std::endl;
+	}
     //btnGrayTexture_.loadFromFile("assets/btn_gray.png"); // Chỉ có hình chữ nhật bo góc xám
     //iconPlayTexture_.loadFromFile("assets/icon_play.png");
     //iconGearTexture_.loadFromFile("assets/icon_gear.png");
@@ -270,6 +292,18 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
     nextBtnTexture_.setSmooth(true);
 	msbQuitSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)msbQuitTexture_.getSize().x, (int)msbQuitTexture_.getSize().y }));
 	msbQuitTexture_.setSmooth(true);
+	slideBarSoundSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)slideBarSoundTexture_.getSize().x, (int)slideBarSoundTexture_.getSize().y }));
+	slideBarSoundTexture_.setSmooth(true);
+	slideNodeSoundSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)slideNodeSoundTexture_.getSize().x, (int)slideNodeSoundTexture_.getSize().y }));
+	slideNodeSoundTexture_.setSmooth(true);
+	slideBarSFXSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)slideBarSFXTexture_.getSize().x, (int)slideBarSFXTexture_.getSize().y }));
+	slideBarSFXTexture_.setSmooth(true);
+	slideNodeSFXSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)slideNodeSFXTexture_.getSize().x, (int)slideNodeSFXTexture_.getSize().y }));
+	slideNodeSFXTexture_.setSmooth(true);
+	optionsKhungSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)optionsKhungTexture_.getSize().x, (int)optionsKhungTexture_.getSize().y }));
+	optionsKhungTexture_.setSmooth(true);
+	iconOptionsSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)iconOptionsTexture_.getSize().x, (int)iconOptionsTexture_.getSize().y }));
+	iconOptionsTexture_.setSmooth(true);
 
     // 1. Xử lý Nền Menu (menuBg) - Ép ảnh nền vừa khít kích thước FIELD_WIDTH x FIELD_HEIGHT
     sf::Vector2u bgSize = menuBgTexture_.getSize();
@@ -363,7 +397,7 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
 
 
 
-    for (int i = 0; i < 7; ++i) {
+    for (int i = 0; i < 8; ++i) {
         auto opt = std::make_shared<LineupOption>();
         // 2. Gán dữ liệu (Dùng dấu -> thay vì dấu .)
         /*opt->id = (i == 0) ? 5 : (10 + i)*/;
@@ -389,6 +423,9 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
         }
         else if(i == 6) {
             opt->name = "1-1-1-2";
+		}
+        else if(i == 7) {
+            opt->name = "2-2-1";
 		}
 
         std::string path = "assets/lineup/" + std::to_string(i) + ".png";
@@ -445,7 +482,135 @@ Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTextur
 	msbQuitSprite_.setOrigin({ msbQuitSize.x / 2.f, msbQuitSize.y / 2.f });
 	msbQuitSprite_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f });
 
+	//sf::Vector2u slideBarSize = slideBarTexture_.getSize();
+	//float targetSlideBarWidth = 270.f;
+	//float sSlideBar = targetSlideBarWidth / static_cast<float>(slideBarSize.x);
+	//slideBarSprite_.setScale({ sSlideBar, sSlideBar });
+	//slideBarSprite_.setOrigin({ slideBarSize.x / 2.f, slideBarSize.y / 2.f });
+	//slideBarSprite_.setPosition({ FIELD_WIDTH / 2.f + 10.f, FIELD_HEIGHT / 2.f - 10.f });
+
+	//sf::Vector2u slideNodeSize = slideNodeTexture_.getSize();
+	//float targetSlideNodeWidth = 140.f;
+	//float sSlideNode = targetSlideNodeWidth / static_cast<float>(slideNodeSize.x);
+	//slideNodeSprite_.setScale({ sSlideNode, sSlideNode });
+	//slideNodeSprite_.setOrigin({ slideNodeSize.x / 2.f, slideNodeSize.y / 2.f });
+	//slideNodeSprite_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f - 10.f });
+
+	sf::Vector2u slideBarSoundSize = slideBarSoundTexture_.getSize();
+	float targetSlideBarSoundWidth = 270.f;
+	float sSlideBarSound = targetSlideBarSoundWidth / static_cast<float>(slideBarSoundSize.x);
+	slideBarSoundSprite_.setScale({ sSlideBarSound, sSlideBarSound });
+	slideBarSoundSprite_.setOrigin({ slideBarSoundSize.x / 2.f, slideBarSoundSize.y / 2.f });
+	slideBarSoundSprite_.setPosition({ FIELD_WIDTH / 2.f + 10.f, FIELD_HEIGHT / 2.f - 10.f });
+
+	sf::Vector2u slideNodeSoundSize = slideNodeSoundTexture_.getSize();
+	float targetSlideNodeSoundWidth = 140.f;
+	float sSlideNodeSound = targetSlideNodeSoundWidth / static_cast<float>(slideNodeSoundSize.x);
+	slideNodeSoundSprite_.setScale({ sSlideNodeSound, sSlideNodeSound });
+	slideNodeSoundSprite_.setOrigin({ slideNodeSoundSize.x / 2.f, slideNodeSoundSize.y / 2.f });
+	slideNodeSoundSprite_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f - 10.f });
+
+	sf::Vector2u slideBarSFXSize = slideBarSFXTexture_.getSize();
+	float targetSlideBarSFXWidth = 270.f;
+	float sSlideBarSFX = targetSlideBarSFXWidth / static_cast<float>(slideBarSFXSize.x);
+	slideBarSFXSprite_.setScale({ sSlideBarSFX, sSlideBarSFX });
+	slideBarSFXSprite_.setOrigin({ slideBarSFXSize.x / 2.f, slideBarSFXSize.y / 2.f });
+	slideBarSFXSprite_.setPosition({ FIELD_WIDTH / 2.f + 10.f, FIELD_HEIGHT / 2.f + 80.f });
+
+	sf::Vector2u slideNodeSFXSize = slideNodeSFXTexture_.getSize();
+	float targetSlideNodeSFXWidth = 140.f;
+	float sSlideNodeSFX = targetSlideNodeSFXWidth / static_cast<float>(slideNodeSFXSize.x);
+	slideNodeSFXSprite_.setScale({ sSlideNodeSFX, sSlideNodeSFX });
+	slideNodeSFXSprite_.setOrigin({ slideNodeSFXSize.x / 2.f, slideNodeSFXSize.y / 2.f });
+	slideNodeSFXSprite_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f + 80.f });
+
+	sf::Vector2u optionsKhungSize = optionsKhungTexture_.getSize();
+	float targetOptionsKhungWidth = 1000.f;
+	float sOptionsKhung = targetOptionsKhungWidth / static_cast<float>(optionsKhungSize.x);
+	optionsKhungSprite_.setScale({ sOptionsKhung, sOptionsKhung });
+	optionsKhungSprite_.setOrigin({ optionsKhungSize.x / 2.f, optionsKhungSize.y / 2.f });
+	optionsKhungSprite_.setPosition({ FIELD_WIDTH / 2.f + 25.f, FIELD_HEIGHT / 2.f });
+
+	sf::Vector2u icOptionsSize = iconOptionsTexture_.getSize();
+	float targetIconOptionsWidth = 240.f;
+	float sIconOptions = targetIconOptionsWidth / static_cast<float>(icOptionsSize.x);
+	iconOptionsSprite_.setScale({ sIconOptions, sIconOptions });
+	iconOptionsSprite_.setOrigin({ icOptionsSize.x / 2.f, icOptionsSize.y / 2.f });
+	iconOptionsSprite_.setPosition({ 950.f, 50.f });
+
     updateTransform();
+
+    // 1. Load nhạc nền
+    if (bgMusic_.openFromFile("assets/music/glory_fix.mp3")) {
+        bgMusic_.setLooping(true);          // Lặp lại liên tục
+        bgMusic_.setVolume(soundVolume_ * 100.f); // Chuyển từ tỉ lệ 0-1 sang 0-100
+        bgMusic_.play();                 // Phát nhạc ngay khi mở game
+    }
+
+    // 2. Load hiệu ứng âm thanh (SFX)
+    if (hitBufferKick_.loadFromFile("assets/music/tieng_sut.mp3")) {
+        hitSoundKick_.setBuffer(hitBufferKick_);
+        hitSoundKick_.setVolume(sfxVolume_ * 100.f);
+    }
+
+	// 3. Load hiệu ứng âm thanh va cham bong voi cau thu va tuong (SFX)
+    if (hitBufferCollide_.loadFromFile("assets/music/tieng_va_cham.mp3")) {
+        hitSoundCollide_.setBuffer(hitBufferCollide_);
+        hitSoundCollide_.setVolume(sfxVolume_ * 100.f);
+	}
+
+	// 4. Load hiệu ứng tiếng còi (SFX)
+    if (whistleBuffer_.loadFromFile("assets/music/tieng_coi.mp3")) {
+        whistleSound_.setBuffer(whistleBuffer_);
+        whistleSound_.setVolume(sfxVolume_ * 100.f);
+    }
+
+	//5. Load hiệu ứng tiếng ăn bàn (SFX)
+    if (goalScoreBuffer_.loadFromFile("assets/music/goal_effect (mp3cut.net).mp3")) {
+        goalScoreSound_.setBuffer(goalScoreBuffer_);
+        goalScoreSound_.setVolume(sfxVolume_ * 100.f);
+	}
+
+	//6. Load hiệu ứng tiếng sân
+    if (stadiumEffect.openFromFile("assets/music/stadium_effect.mp3")) {
+        stadiumEffect.setLooping(true);          // Lặp lại liên tục
+        stadiumEffect.setVolume(soundVolume_ * 100.f); // Chuyển từ tỉ lệ 0-1 sang 0-100
+        stadiumEffect.play();                 // Phát nhạc ngay khi mở game
+    }
+
+	//7. Load hiệu ứng tiếng nhạc ghi bàn
+    if (goalMusicBuffer_.loadFromFile("assets/music/goal_music_effect.mp3")) {
+        goalMusicSound_.setBuffer(goalMusicBuffer_);
+        goalMusicSound_.setVolume(sfxVolume_ * 100.f);
+	}
+
+    updateSoundSliderVisual();
+    updateSFXSliderVisual();
+
+    // --- SETUP HIỆU ỨNG GOAL ---
+    // Nửa banner bên trái
+    leftGoalBanner_.setSize({ FIELD_WIDTH / 2.f, 160.f });
+    leftGoalBanner_.setFillColor(sf::Color(0, 0, 0, 180)); // Màu đen trong suốt giống ảnh
+    leftGoalBanner_.setOrigin({ FIELD_WIDTH / 2.f, 80.f });
+
+    // Nửa banner bên phải
+    rightGoalBanner_.setSize({ FIELD_WIDTH / 2.f, 160.f });
+    rightGoalBanner_.setFillColor(sf::Color(0, 0, 0, 180));
+    rightGoalBanner_.setOrigin({ 0.f, 80.f });
+
+    goalText_ = sf::Text(goalFont_);
+
+    // Chữ GOAL!
+    goalText_.setFont(goalFont_);
+    goalText_.setString("GOAL!");
+    goalText_.setCharacterSize(100);
+    goalText_.setFillColor(sf::Color::White);
+    goalText_.setOutlineColor(sf::Color::Black);
+    goalText_.setOutlineThickness(3.f);
+    sf::FloatRect textBounds = goalText_.getLocalBounds();
+    goalText_.setOrigin({ textBounds.position.x + textBounds.size.x / 2.f,
+                          textBounds.position.y + textBounds.size.y / 2.f });
+    goalText_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f });
 }
 
 void Game_Render::updateTransform() {
@@ -569,12 +734,12 @@ void Game_Render::drawGoals(sf::RenderWindow& window) {
     const float postW = LINE_WIDTH;
     sf::RectangleShape leftGoal(sf::Vector2f(postW, GOAL_HEIGHT));
     leftGoal.setPosition({ FIELD_MARGIN_X, GOAL_Y_OFFSET});
-    leftGoal.setFillColor(sf::Color::Red);
+    leftGoal.setFillColor(sf::Color::White);
     window.draw(leftGoal);
 
     sf::RectangleShape rightGoal(sf::Vector2f(postW, GOAL_HEIGHT));
     rightGoal.setPosition({ FIELD_WIDTH - FIELD_MARGIN_X - postW - 2.f, GOAL_Y_OFFSET});
-    rightGoal.setFillColor(sf::Color::Red);
+    rightGoal.setFillColor(sf::Color::White);
     window.draw(rightGoal);
 }
 
@@ -786,6 +951,8 @@ void Game_Render::drawUI(sf::RenderWindow& window) {
     }
     centerTextAt(text, sbCenter + SB_OFFSET_TIME);
     window.draw(text);
+
+	window.draw(iconOptionsSprite_);
 }
 
 //void Game_Render::drawUI(sf::RenderWindow& window) {
@@ -839,17 +1006,84 @@ void Game_Render::drawUI(sf::RenderWindow& window) {
 //}
 
 void Game_Render::drawGameOver(sf::RenderWindow& window) {
-    sf::Font font;
-    if (!font.openFromFile("C:/Windows/Fonts/arial.ttf")) return;
-    std::string msg = (state_->getScore1() >= state_->getConfig().goalsToWin) ? "DOI 1 THANG!" : "DOI 2 THANG!";
-    sf::Text over(font, msg,  42);
-    over.setPosition({ FIELD_WIDTH / 2.f - 100.f, FIELD_HEIGHT / 2.f - 30.f });
-    over.setFillColor(sf::Color::Yellow);
-    window.draw(over);
-    sf::Text hint(font, "Nhan SPACE de choi lai",  20);
-    hint.setPosition({ FIELD_WIDTH / 2.f - 90.f, FIELD_HEIGHT / 2.f + 30.f });
-    hint.setFillColor(sf::Color::White);
-    window.draw(hint);
+    // 1. Tính toán tiến độ chạy của animation
+    float progress = std::min(gameOverAnimTimer_ / GOAL_ANIM_DURATION, 1.0f);
+    float ease = 1.f - std::pow(1.f - progress, 3.f); // Trượt nhanh rồi chậm dần
+
+    // 2. Kéo 2 thanh đen (Dùng lại biến banner của Goal cho tiết kiệm bộ nhớ)
+    leftGoalBanner_.setPosition({ (FIELD_WIDTH / 2.f) * ease, FIELD_HEIGHT / 2.f });
+    rightGoalBanner_.setPosition({ FIELD_WIDTH - (FIELD_WIDTH / 2.f) * ease, FIELD_HEIGHT / 2.f });
+
+    window.draw(leftGoalBanner_);
+    window.draw(rightGoalBanner_);
+
+    // 3. Vẽ 4 dải viền vàng trên dưới mép banner
+    float lineThick = 4.f;
+    sf::Color yellowColor = sf::Color(255, 220, 0);
+
+    sf::RectangleShape topL({ FIELD_WIDTH / 2.f, lineThick });
+    topL.setFillColor(yellowColor);
+    topL.setOrigin({ FIELD_WIDTH / 2.f, 0.f });
+    topL.setPosition({ leftGoalBanner_.getPosition().x, leftGoalBanner_.getPosition().y - 80.f });
+
+    sf::RectangleShape botL({ FIELD_WIDTH / 2.f, lineThick });
+    botL.setFillColor(yellowColor);
+    botL.setOrigin({ FIELD_WIDTH / 2.f, lineThick });
+    botL.setPosition({ leftGoalBanner_.getPosition().x, leftGoalBanner_.getPosition().y + 80.f });
+
+    sf::RectangleShape topR({ FIELD_WIDTH / 2.f, lineThick });
+    topR.setFillColor(yellowColor);
+    topR.setOrigin({ 0.f, 0.f });
+    topR.setPosition({ rightGoalBanner_.getPosition().x, rightGoalBanner_.getPosition().y - 80.f });
+
+    sf::RectangleShape botR({ FIELD_WIDTH / 2.f, lineThick });
+    botR.setFillColor(yellowColor);
+    botR.setOrigin({ 0.f, lineThick });
+    botR.setPosition({ rightGoalBanner_.getPosition().x, rightGoalBanner_.getPosition().y + 80.f });
+
+    window.draw(topL); window.draw(botL);
+    window.draw(topR); window.draw(botR);
+
+    // 4. In chữ PLAYER WIN!
+    if (progress > 0.1f) {
+        float alpha = progress * 255.f;
+        sf::Text winText(goalFont_);
+        std::string msg = (state_->getScore1() >= state_->getConfig().goalsToWin) ? "PLAYER 1 WIN!" : "PLAYER 2 WIN!";
+
+        winText.setString(msg);
+        winText.setCharacterSize(80); // Cỡ chữ 80 để vừa vặn khung hình
+        winText.setFillColor(sf::Color(255, 255, 0, static_cast<std::uint8_t>(std::min(255.f, std::max(0.f, alpha)))));
+        winText.setOutlineColor(sf::Color(0, 0, 0, static_cast<std::uint8_t>(std::min(255.f, std::max(0.f, alpha)))));
+        winText.setOutlineThickness(3.f);
+
+        sf::FloatRect textBounds = winText.getLocalBounds();
+        winText.setOrigin({ textBounds.position.x + textBounds.size.x / 2.f,
+                            textBounds.position.y + textBounds.size.y / 2.f });
+        winText.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f - 15.f }); // Nhích chữ WIN lên tí
+
+        window.draw(winText);
+    }
+
+    // 5. In chữ Nhấn Space nhấp nháy khi 2 thanh đã đập vào nhau
+    if (progress >= 1.0f) {
+        // Hàm sin tạo sóng lượn từ 0 đến 1
+        float blink = (std::sin(effectClock_.getElapsedTime().asSeconds() * 8.f) + 1.f) / 2.f;
+
+        sf::Text hintText(sbFont_); // Dùng font sbFont_ (Arial) để ko bị lỗi Tiếng Việt
+        hintText.setString(L"Press Space to exit to the home screen"); // Dùng chữ L để hỗ trợ Unicode tiếng Việt
+        hintText.setCharacterSize(22);
+
+        // Màu trắng nhấp nháy độ mờ từ 100 đến 255
+        hintText.setFillColor(sf::Color(255, 255, 255, static_cast<std::uint8_t>(100.f + blink * 155.f)));
+
+        sf::FloatRect hintBounds = hintText.getLocalBounds();
+        hintText.setOrigin({ hintBounds.position.x + hintBounds.size.x / 2.f,
+                             hintBounds.position.y + hintBounds.size.y / 2.f });
+        // Canh chữ xuống góc dưới
+        hintText.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f + 45.f });
+
+        window.draw(hintText);
+    }
 }
 
 //void Game_Render::drawDragIndicator(sf::RenderWindow& window, sf::Vector2f from, sf::Vector2f to) {
@@ -960,6 +1194,172 @@ void Game_Render::drawShotAiming(sf::RenderWindow& window) {
     }
 }
 
+void Game_Render::drawOptionsMenu(sf::RenderWindow& window) {
+    window.draw(menuBgSprite_);
+	window.draw(optionsKhungSprite_);
+
+    sf::Font titleFont;
+    if (!titleFont.openFromFile("assets/font/GulfsDisplay-SemiCondensed.ttf")) { // Đường dẫn font mới
+        std::cerr << "LOI: Khong load duoc font tieu de!" << std::endl;
+        // Nếu lỗi, hiện text tạm bằng font cơ bản để game không crash
+        titleFont.openFromFile("C:/Windows/Fonts/arial.ttf");
+    }
+
+    // 2. Tạo đối tượng Text
+    sf::Text titleText(titleFont);
+    titleText.setString("OPTIONS");
+
+    // 3. Chỉnh kích thước (Trong ảnh chữ rất to, khoảng 70-80)
+    titleText.setCharacterSize(80);
+
+    // 4. Chỉnh màu sắc (Trong ảnh là màu đen tuyền)
+    titleText.setFillColor(sf::Color::Black);
+
+    // 5. Căn giữa tiêu đề vào chính giữa sân
+    sf::FloatRect textBounds = titleText.getLocalBounds();
+    titleText.setOrigin({ textBounds.position.x + textBounds.size.x / 2.f,
+                          textBounds.position.y + textBounds.size.y / 2.f });
+
+    // Đặt ở tọa độ (500, 100), cao hơn một chút để không bị 8-ball đè
+    titleText.setPosition({ FIELD_WIDTH / 2.f + 10.f, 100.f });
+
+    // 6. Vẽ
+    window.draw(titleText);
+
+    // 2. Tạo đối tượng Text
+    sf::Text titleSound(titleFont);
+    titleSound.setString("SOUND:");
+
+    // 3. Chỉnh kích thước (Trong ảnh chữ rất to, khoảng 70-80)
+    titleSound.setCharacterSize(40);
+
+    // 4. Chỉnh màu sắc (Trong ảnh là màu đen tuyền)
+    titleSound.setFillColor(sf::Color::White);
+
+    // 5. Căn giữa tiêu đề vào chính giữa sân
+    sf::FloatRect textBoundsSound = titleSound.getLocalBounds();
+    titleSound.setOrigin({ textBoundsSound.position.x + textBoundsSound.size.x / 2.f,
+                          textBoundsSound.position.y + textBoundsSound.size.y / 2.f });
+
+    // Đặt ở tọa độ (500, 100), cao hơn một chút để không bị 8-ball đè
+    titleSound.setPosition({ 280.f, 238.f });
+
+    // 6. Vẽ
+    window.draw(titleSound);
+
+    // 2. Tạo đối tượng Text
+    sf::Text titleSFX(titleFont);
+    titleSFX.setString("SFX:");
+
+    // 3. Chỉnh kích thước (Trong ảnh chữ rất to, khoảng 70-80)
+    titleSFX.setCharacterSize(40);
+
+    // 4. Chỉnh màu sắc (Trong ảnh là màu đen tuyền)
+    titleSFX.setFillColor(sf::Color::White);
+
+    // 5. Căn giữa tiêu đề vào chính giữa sân
+    sf::FloatRect textBoundsSFX = titleSFX.getLocalBounds();
+    titleSFX.setOrigin({ textBoundsSFX.position.x + textBoundsSFX.size.x / 2.f,
+                          textBoundsSFX.position.y + textBoundsSFX.size.y / 2.f });
+
+    // Đặt ở tọa độ (500, 100), cao hơn một chút để không bị 8-ball đè
+    titleSFX.setPosition({ 280.f, 330.f });
+
+    // 6. Vẽ
+    window.draw(titleSFX);
+
+    sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+    float sRet = 180.f / iconReturnTexture_.getSize().x;
+    applyHoverEffect(iconReturnSprite_, { { 30.f, 30.f},{ 40.f, 40.f} }, mPos, sRet);
+    window.draw(iconReturnSprite_);
+
+
+    // ===== 1. VẼ THANH SOUND =====
+    // Cập nhật vị trí nút trước khi vẽ
+    updateSoundSliderVisual();
+
+    // Vẽ thanh nền tối (phần chưa được fill)
+    slideBarSoundSprite_.setColor(sf::Color(0, 0, 0));
+    slideBarSoundSprite_.setTextureRect(sf::IntRect({ 0, 0 },
+        { (int)slideBarSoundTexture_.getSize().x, (int)slideBarSoundTexture_.getSize().y }));
+    window.draw(slideBarSoundSprite_);
+
+    // Vẽ phần thanh đã được fill (màu vàng)
+    slideBarSoundSprite_.setColor(sf::Color(255, 255, 0));
+    int cutWidthSound = static_cast<int>(slideBarSoundTexture_.getSize().x * soundVolume_);
+    slideBarSoundSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { cutWidthSound, (int)slideBarSoundTexture_.getSize().y }));
+    window.draw(slideBarSoundSprite_);
+
+    // Vẽ nút tròn
+    window.draw(slideNodeSoundSprite_);
+
+    // ===== 2. VẼ THANH SFX =====
+    updateSFXSliderVisual();
+
+    // Nền Đen
+    slideBarSoundSprite_.setColor(sf::Color(0, 0, 0));
+    slideBarSoundSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)slideBarSoundTexture_.getSize().x, (int)slideBarSoundTexture_.getSize().y }));
+    window.draw(slideBarSoundSprite_);
+
+    // Vạch Vàng
+    slideBarSoundSprite_.setColor(sf::Color(255, 255, 0));
+    float bgWidth = 270.f;
+    float bgStartX = (FIELD_WIDTH / 2.f) + 10.f - (bgWidth / 2.f);
+
+    float nodeXSound = slideNodeSoundSprite_.getPosition().x;
+    float fillRatioSound = (nodeXSound - bgStartX) / bgWidth;
+    cutWidthSound = static_cast<int>(slideBarSoundTexture_.getSize().x * fillRatioSound);
+    slideBarSoundSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { cutWidthSound, (int)slideBarSoundTexture_.getSize().y }));
+    window.draw(slideBarSoundSprite_);
+
+    window.draw(slideNodeSoundSprite_);
+
+    // ---------------------------------------------------------
+    // THÊM MỚI: VẼ % ÂM LƯỢNG SOUND NGAY DƯỚI THANH
+    // ---------------------------------------------------------
+    int soundPercent = static_cast<int>(soundVolume_ * 100.f);
+    sf::Text soundPercentText(titleFont, std::to_string(soundPercent) + "%", 26);
+    soundPercentText.setFillColor(sf::Color::White);
+    sf::FloatRect boundsSound = soundPercentText.getLocalBounds();
+    soundPercentText.setOrigin({ boundsSound.position.x + boundsSound.size.x / 2.f, boundsSound.position.y + boundsSound.size.y / 2.f });
+
+    // Đặt ở chính giữa thanh trượt, dịch xuống dưới khoảng 35 pixel
+    soundPercentText.setPosition({ (FIELD_WIDTH / 2.f) + 10.f, (FIELD_HEIGHT / 2.f) + 25.f });
+    window.draw(soundPercentText);
+    // ---------------------------------------------------------
+
+
+
+    // ===== 2. VẼ THANH SFX =====
+    updateSFXSliderVisual();
+
+    slideBarSFXSprite_.setColor(sf::Color(0, 0, 0));
+    slideBarSFXSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)slideBarSFXTexture_.getSize().x, (int)slideBarSFXTexture_.getSize().y }));
+    window.draw(slideBarSFXSprite_);
+
+    slideBarSFXSprite_.setColor(sf::Color(255, 255, 0));
+    float nodeXSFX = slideNodeSFXSprite_.getPosition().x;
+    float fillRatioSFX = (nodeXSFX - bgStartX) / bgWidth;
+    int cutWidthSFX = static_cast<int>(slideBarSFXTexture_.getSize().x * fillRatioSFX);
+    slideBarSFXSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { cutWidthSFX, (int)slideBarSFXTexture_.getSize().y }));
+    window.draw(slideBarSFXSprite_);
+
+    window.draw(slideNodeSFXSprite_);
+
+    // ---------------------------------------------------------
+    // THÊM MỚI: VẼ % ÂM LƯỢNG SFX NGAY DƯỚI THANH
+    // ---------------------------------------------------------
+    int sfxPercent = static_cast<int>(sfxVolume_ * 100.f);
+    sf::Text sfxPercentText(titleFont, std::to_string(sfxPercent) + "%", 26);
+    sfxPercentText.setFillColor(sf::Color::White);
+    sf::FloatRect boundsSFX = sfxPercentText.getLocalBounds();
+    sfxPercentText.setOrigin({ boundsSFX.position.x + boundsSFX.size.x / 2.f, boundsSFX.position.y + boundsSFX.size.y / 2.f });
+
+    // Đặt ở chính giữa thanh trượt SFX, dịch xuống dưới khoảng 35 pixel
+    sfxPercentText.setPosition({ (FIELD_WIDTH / 2.f) + 10.f, (FIELD_HEIGHT / 2.f) + 115.f });
+    window.draw(sfxPercentText);
+    // ---------------------------------------------------------
+}
 
 
 void Game_Render::drawMainMenu(sf::RenderWindow& window) {
@@ -1019,17 +1419,17 @@ void Game_Render::drawMainMenu(sf::RenderWindow& window) {
     // 6. Vẽ
     window.draw(titleText);
 
-    // 2. Tạo hình chữ nhật để vẽ
-    sf::RectangleShape debugRect(sf::Vector2f(250.f, 80.f));
-    debugRect.setPosition({ 375.f, 210.f });
+    //// 2. Tạo hình chữ nhật để vẽ
+    //sf::RectangleShape debugRect(sf::Vector2f(250.f, 80.f));
+    //debugRect.setPosition({ 375.f, 210.f });
 
-    //// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
-    debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
-    debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
-    debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
+    ////// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
+    //debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
+    //debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
+    //debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
 
-    //// 4. Vẽ lên cửa sổ
-    window.draw(debugRect);
+    ////// 4. Vẽ lên cửa sổ
+    //window.draw(debugRect);
 
 }
 
@@ -1075,16 +1475,16 @@ void Game_Render::drawSelectMode(sf::RenderWindow& window) {
     window.draw(aivaiSprite_);
 
     // 2. Tạo hình chữ nhật để vẽ
-    sf::RectangleShape debugRect(sf::Vector2f(40.f, 40.f));
-    debugRect.setPosition({ 50.f - 20.f, 50.f - 20.f });
+    //sf::RectangleShape debugRect(sf::Vector2f(40.f, 40.f));
+    //debugRect.setPosition({ 50.f - 20.f, 50.f - 20.f });
 
-    //// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
-    debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
-    debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
-    debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
+    ////// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
+    //debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
+    //debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
+    //debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
 
-    //// 4. Vẽ lên cửa sổ
-    window.draw(debugRect);
+    ////// 4. Vẽ lên cửa sổ
+    //window.draw(debugRect);
 
     // Nút quay lại (iconQuit đã load)
     float sRet = 180.f / iconReturnTexture_.getSize().x;
@@ -1210,17 +1610,17 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
     window.draw(iconReturnSprite_);
 
 
-    // 2. Tạo hình chữ nhật để vẽ
-    sf::RectangleShape debugRect(sf::Vector2f(80.f, 40.f));
-    debugRect.setPosition({ 885.f, 210.f });
+    //// 2. Tạo hình chữ nhật để vẽ
+    //sf::RectangleShape debugRect(sf::Vector2f(80.f, 40.f));
+    //debugRect.setPosition({ 885.f, 210.f });
 
-    //// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
-    debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
-    debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
-    debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
+    ////// 3. Thiết lập hiển thị (Chỉ vẽ viền để không che ảnh đội hình)
+    //debugRect.setFillColor(sf::Color::Transparent); // Trong suốt bên trong
+    //debugRect.setOutlineColor(sf::Color::Red);       // Viền đỏ cho nổi bật
+    //debugRect.setOutlineThickness(2.f);              // Độ dày viền 2px
 
-    //// 4. Vẽ lên cửa sổ
-    window.draw(debugRect);
+    ////// 4. Vẽ lên cửa sổ
+    //window.draw(debugRect);
 }
 
 
@@ -1276,7 +1676,74 @@ void Game_Render::draw(sf::RenderWindow& window) {
     if (!state_) return;
     updateTransform();
 
+    // ====== THÊM ĐOẠN NÀY ĐỂ FADE OUT TIẾNG GOAL ======
+    // Kiểm tra xem tiếng goal_effect có đang phát không
+    if (goalScoreSound_.getStatus() == sf::Sound::Status::Playing) {
+        float currentGoalVol = goalScoreSound_.getVolume();
+
+        // Nếu âm lượng vẫn lớn hơn 0, tiến hành trừ dần
+        if (currentGoalVol > 0.f) {
+            // Trừ đi một lượng nhỏ mỗi frame. 
+            // 0.3f ở 60 FPS sẽ mất khoảng 5 giây để giảm từ 100 xuống 0.
+            // (Bạn có thể tăng lên 0.5f hoặc 1.0f nếu muốn nó tắt nhanh hơn)
+            currentGoalVol -= 0.3f;
+
+            if (currentGoalVol <= 0.f) {
+                currentGoalVol = 0.f; // Chốt chặn không cho xuống âm
+                // (Tùy chọn) Có thể tắt hẳn âm thanh luôn khi đã về 0 cho nhẹ máy:
+                // goalScoreSound_.stop(); 
+            }
+
+            goalScoreSound_.setVolume(currentGoalVol);
+        }
+    }
+    // ===================================================
+
+
     GamePhase current = state_->getPhase();
+
+
+    // ====== THÊM ĐOẠN NÀY ĐỂ TỰ ĐỘNG CHỈNH ÂM LƯỢNG NHẠC NỀN ======
+    // Nếu đang ở trong trận đấu, HOẶC đang mở bảng hỏi Thoát khi đang trong trận đấu
+    // TRƯỜNG HỢP 1: ĐANG TRONG TRẬN ĐẤU (Bóng lăn bình thường)
+    if (current == GamePhase::Playing ||
+        (current == GamePhase::ConfirmQuit && state_->getPreviousPhase() == GamePhase::Playing) || 
+        (current == GamePhase::Options && state_->getPreviousPhase() == GamePhase::Playing)) {
+
+        // Tắt nhạc Menu
+        if (bgMusic_.getStatus() == sf::Sound::Status::Playing) bgMusic_.stop();
+
+        // Bật tiếng râm ran sân vận động
+        stadiumEffect.setVolume(soundVolume_ * 70.f);
+        if (stadiumEffect.getStatus() != sf::Sound::Status::Playing) {
+            stadiumEffect.play();
+        }
+    }
+    // TRƯỜNG HỢP 2: ĐANG GHI BÀN (Ăn mừng)
+    else if (current == GamePhase::GoalScored) {
+
+        // Chắc chắn tắt nhạc Menu
+        if (bgMusic_.getStatus() == sf::Sound::Status::Playing) bgMusic_.stop();
+
+        // ---> TẠM DỪNG (TẮT) TIẾNG SÂN VẬN ĐỘNG ĐỂ NHƯỜNG SÂN KHẤU CHO NHẠC GOAL <---
+        if (stadiumEffect.getStatus() == sf::Sound::Status::Playing) {
+            stadiumEffect.stop();
+        }
+    }
+    // TRƯỜNG HỢP 3: CÁC MÀN HÌNH KHÁC (Menu, Options, Pick Lineup, Game Over...)
+    else {
+        // Tắt tiếng sân vận động
+        if (stadiumEffect.getStatus() == sf::Sound::Status::Playing) {
+            stadiumEffect.stop();
+        }
+
+        // Bật lại nhạc nền Menu to rõ ràng từ đầu
+        bgMusic_.setVolume(soundVolume_ * 100.f);
+        if (bgMusic_.getStatus() != sf::Sound::Status::Playing) {
+            bgMusic_.play();
+        }
+    }
+    // =============================================================
 
     // Nếu đang ở ConfirmQuit, vẽ nền trước (phase trước đó)
     if (current == GamePhase::ConfirmQuit) {
@@ -1296,6 +1763,11 @@ void Game_Render::draw(sf::RenderWindow& window) {
             sf::View lineupView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
             window.setView(lineupView);
             drawSelectLineup(window);
+        }
+        else if (current == GamePhase::Options) {
+            sf::View optionsView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
+            window.setView(optionsView);
+            drawOptionsMenu(window);
         }
         else if (behind == GamePhase::Playing) {
             sf::View gameView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
@@ -1331,6 +1803,12 @@ void Game_Render::draw(sf::RenderWindow& window) {
         drawSelectLineup(window);
         return;
     }
+    else if(current == GamePhase::Options) {
+        sf::View optionsView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
+        window.setView(optionsView);
+        drawOptionsMenu(window);
+        return;
+	}
 
     // Phase Playing và GameOver
     sf::View gameView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
@@ -1341,6 +1819,7 @@ void Game_Render::draw(sf::RenderWindow& window) {
     drawBall(window);
     drawPieces(window);
 
+
     if (dragActive_) {
         drawShotAiming(window);
         dragActive_ = false;
@@ -1350,6 +1829,274 @@ void Game_Render::draw(sf::RenderWindow& window) {
         drawGameOver(window);
     else
         drawUI(window);
+
+    drawGoalAnimation(window);
+}
+
+// Thêm vào cuối Game_Render.cpp
+
+void Game_Render::setSoundVolume(float vol) {
+    soundVolume_ = vol;
+    bgMusic_.setVolume(soundVolume_ * 100.f);
+}
+
+void Game_Render::setSFXVolume(float vol) {
+    sfxVolume_ = vol;
+    hitSoundKick_.setVolume(sfxVolume_ * 100.f);
+    hitSoundCollide_.setVolume(sfxVolume_ * 100.f);
+}
+
+void Game_Render::updateSoundSliderVisual() {
+    float bgWidth = 270.f;
+    float bgStartX = (FIELD_WIDTH / 2.f) + 10.f - (bgWidth / 2.f);
+    float realY = (FIELD_HEIGHT / 2.f) - 10.f;
+
+    sf::Vector2u texSize = slideBarSoundTexture_.getSize();
+    slideBarSoundSprite_.setOrigin({ 0.f, texSize.y / 2.f });
+    slideBarSoundSprite_.setPosition({ bgStartX, realY });
+
+    // --- CHỈNH PHẠM VI KÉO Ở ĐÂY ---
+    float padding = 18.f; // Tăng lên nếu muốn thâu hẹp đường kéo lại
+    float dragStartX = bgStartX + padding;
+    float dragWidth = bgWidth - (2.f * padding);
+    // -------------------------------
+
+    float nodeX = dragStartX + (dragWidth * soundVolume_);
+    slideNodeSoundSprite_.setPosition({ nodeX, realY });
+}
+
+void Game_Render::updateSFXSliderVisual() {
+    float bgWidth = 270.f;
+    float bgStartX = (FIELD_WIDTH / 2.f) + 10.f - (bgWidth / 2.f);
+    float realY = (FIELD_HEIGHT / 2.f) + 80.f;
+
+    sf::Vector2u texSize = slideBarSFXTexture_.getSize();
+    slideBarSFXSprite_.setOrigin({ 0.f, texSize.y / 2.f });
+    slideBarSFXSprite_.setPosition({ bgStartX, realY });
+
+    // --- CHỈNH PHẠM VI KÉO Ở ĐÂY ---
+    float padding = 18.f;
+    float dragStartX = bgStartX + padding;
+    float dragWidth = bgWidth - (2.f * padding);
+    // -------------------------------
+
+    float nodeX = dragStartX + (dragWidth * sfxVolume_);
+    slideNodeSFXSprite_.setPosition({ nodeX, realY });
+}
+
+void Game_Render::updateVolumeFromMouse(sf::Vector2f mousePos) {
+    float bgWidth = 270.f;
+    float bgStartX = (FIELD_WIDTH / 2.f) + 10.f - (bgWidth / 2.f);
+
+    // Áp dụng khoảng đệm y hệt như trên
+    float padding = 18.f;
+    float dragStartX = bgStartX + padding;
+    float dragWidth = bgWidth - (2.f * padding);
+
+    // Kẹp chuột vào giới hạn kéo mới
+    float clampedX = mousePos.x;
+    if (clampedX < dragStartX) clampedX = dragStartX;
+    if (clampedX > dragStartX + dragWidth) clampedX = dragStartX + dragWidth;
+
+    float newRatio = (clampedX - dragStartX) / dragWidth;
+
+    if (isDraggingSound_) {
+        setSoundVolume(newRatio);
+        updateSoundSliderVisual();
+    }
+    else if (isDraggingSFX_) {
+        setSFXVolume(newRatio);
+        updateSFXSliderVisual();
+    }
+}
+
+void Game_Render::handleEvent(const sf::Event& event, sf::RenderWindow& window, sf::Vector2f mousePos) {
+    float bgWidth = 270.f;
+    float bgStartX = (FIELD_WIDTH / 2.f) + 10.f - (bgWidth / 2.f);
+    float padding = 18.f;
+    float dragStartX = bgStartX + padding;
+    float dragWidth = bgWidth - (2.f * padding);
+
+    float soundY = (FIELD_HEIGHT / 2.f) - 10.f;
+    float sfxY = (FIELD_HEIGHT / 2.f) + 80.f;
+
+    // Vùng hit detection
+    sf::FloatRect soundArea({ dragStartX - 20.f, soundY - 20.f }, { dragWidth + 40.f,  50.f });
+    sf::FloatRect sfxArea({ dragStartX - 20.f, sfxY - 20.f }, { dragWidth + 40.f,  50.f });
+
+    sf::FloatRect soundNodeArea({ slideNodeSoundSprite_.getPosition().x - 20.f, slideNodeSoundSprite_.getPosition().y - 20.f }, { 40.f, 40.f });
+    sf::FloatRect sfxNodeArea({ slideNodeSFXSprite_.getPosition().x - 20.f, slideNodeSFXSprite_.getPosition().y - 20.f }, { 40.f, 40.f });
+
+    if (const auto* mbp = event.getIf<sf::Event::MouseButtonPressed>()) {
+        if (mbp->button == sf::Mouse::Button::Left) {
+            if (soundNodeArea.contains(mousePos) || soundArea.contains(mousePos)) {
+                isDraggingSound_ = true;
+                isDraggingSFX_ = false;
+                updateVolumeFromMouse(mousePos);
+            }
+            else if (sfxNodeArea.contains(mousePos) || sfxArea.contains(mousePos)) {
+                isDraggingSFX_ = true;
+                isDraggingSound_ = false;
+                updateVolumeFromMouse(mousePos);
+            }
+        }
+    }
+
+    if (const auto* mbr = event.getIf<sf::Event::MouseButtonReleased>()) {
+        if (mbr->button == sf::Mouse::Button::Left) {
+            isDraggingSound_ = false;
+            isDraggingSFX_ = false;
+        }
+    }
+
+    if (event.is<sf::Event::MouseMoved>()) {
+        if (isDraggingSound_ || isDraggingSFX_) {
+            updateVolumeFromMouse(mousePos);
+        }
+    }
+}
+
+
+void Game_Render::playHitSound() {
+    hitSoundKick_.play();
+}
+
+void Game_Render::playCollideSound() {
+    hitSoundCollide_.play();
+}
+
+void Game_Render::playWhistleSound() {
+    whistleSound_.play();
+}
+
+void Game_Render::playGoalSound() {
+    goalScoreSound_.setVolume(sfxVolume_ * 100.f);
+    goalScoreSound_.play();
+}
+
+void Game_Render::playGoalMusic() {
+    goalMusicSound_.setVolume(sfxVolume_ * 70.f);
+	goalMusicSound_.play();
+}
+
+void Game_Render::startGoalAnimation() {
+    goalAnimState_ = 1;
+    goalAnimTimer_ = 0.f;
+    if (state_->isFoul()) {
+        playWhistleSound(); // Lỗi chỉ tuýt còi
+    }
+    else {
+        playGoalSound();    // Vào thì hô GOAL và phát nhạc
+        playGoalMusic();
+    }
+}
+
+void Game_Render::updateGoalAnimation(float dt) {
+    if (goalAnimState_ == 0) return;
+
+    if (goalAnimState_ == 1) { // GIAI ĐOẠN 1: TRƯỢT VÀO TỪ 2 BÊN
+        goalAnimTimer_ += dt;
+        float progress = std::min(goalAnimTimer_ / GOAL_ANIM_DURATION, 1.0f);
+        // Hiệu ứng ease-out (Trượt nhanh rồi chậm dần lúc vào giữa)
+        float ease = 1.f - std::pow(1.f - progress, 3.f);
+
+        leftGoalBanner_.setPosition({ (FIELD_WIDTH / 2.f) * ease, FIELD_HEIGHT / 2.f });
+        rightGoalBanner_.setPosition({ FIELD_WIDTH - (FIELD_WIDTH / 2.f) * ease, FIELD_HEIGHT / 2.f });
+
+        if (progress >= 1.0f) goalAnimState_ = 2; // Xong thì chuyển sang chờ
+    }
+    else if (goalAnimState_ == 2) { // GIAI ĐOẠN 2: CHỜ ÂM THANH TẮT
+        bool soundDone = false;
+        if (state_->isFoul()) {
+            soundDone = (whistleSound_.getStatus() != sf::Sound::Status::Playing);
+        }
+        else {
+            soundDone = (goalMusicSound_.getStatus() != sf::Sound::Status::Playing);
+        }
+
+        if (soundDone) {
+            goalAnimState_ = 3;
+            goalAnimTimer_ = 0.f;
+        }
+    }
+    else if (goalAnimState_ == 3) { // GIAI ĐOẠN 3: TRƯỢT NGƯỢC RA LẠI
+        goalAnimTimer_ += dt;
+        float progress = std::min(goalAnimTimer_ / GOAL_ANIM_DURATION, 1.0f);
+        // Hiệu ứng ease-in
+        float ease = std::pow(progress, 3.f);
+
+        leftGoalBanner_.setPosition({ (FIELD_WIDTH / 2.f) - (FIELD_WIDTH / 2.f) * ease, FIELD_HEIGHT / 2.f });
+        rightGoalBanner_.setPosition({ FIELD_WIDTH / 2.f + (FIELD_WIDTH / 2.f) * ease, FIELD_HEIGHT / 2.f });
+
+        if (progress >= 1.0f) goalAnimState_ = 0; // KẾT THÚC TOÀN BỘ
+    }
+}
+
+bool Game_Render::isGoalAnimationDone() const {
+    return goalAnimState_ == 0;
+}
+
+void Game_Render::drawGoalAnimation(sf::RenderWindow& window) {
+    if (goalAnimState_ == 0) return;
+
+    window.draw(leftGoalBanner_);
+    window.draw(rightGoalBanner_);
+
+    // ====== ĐÃ SỬA: ĐỔI MÀU NẾU LÀ FOUL ======
+    bool isFoul = state_->isFoul();
+    float lineThick = 4.f;
+    sf::Color borderColor = isFoul ? sf::Color(255, 30, 30) : sf::Color(255, 220, 0); // Lỗi Đỏ, Ghi bàn Vàng
+
+    // 1. Viền trên và dưới cho thanh BÊN TRÁI
+    sf::RectangleShape topL({ FIELD_WIDTH / 2.f, lineThick });
+    topL.setFillColor(borderColor); // <-- dùng borderColor
+    topL.setOrigin({ FIELD_WIDTH / 2.f, 0.f });
+    topL.setPosition({ leftGoalBanner_.getPosition().x, leftGoalBanner_.getPosition().y - 80.f });
+
+    sf::RectangleShape botL({ FIELD_WIDTH / 2.f, lineThick });
+    botL.setFillColor(borderColor); // <-- dùng borderColor
+    botL.setOrigin({ FIELD_WIDTH / 2.f, lineThick });
+    botL.setPosition({ leftGoalBanner_.getPosition().x, leftGoalBanner_.getPosition().y + 80.f });
+
+    // 2. Viền trên và dưới cho thanh BÊN PHẢI
+    sf::RectangleShape topR({ FIELD_WIDTH / 2.f, lineThick });
+    topR.setFillColor(borderColor); // <-- dùng borderColor
+    topR.setOrigin({ 0.f, 0.f });
+    topR.setPosition({ rightGoalBanner_.getPosition().x, rightGoalBanner_.getPosition().y - 80.f });
+
+    sf::RectangleShape botR({ FIELD_WIDTH / 2.f, lineThick });
+    botR.setFillColor(borderColor); // <-- dùng borderColor
+    botR.setOrigin({ 0.f, lineThick });
+    botR.setPosition({ rightGoalBanner_.getPosition().x, rightGoalBanner_.getPosition().y + 80.f });
+
+    // Vẽ 4 dải viền
+    window.draw(topL); window.draw(botL);
+    window.draw(topR); window.draw(botR);
+
+    // Chữ GOAL hoặc FOUL
+    if (goalAnimState_ >= 1) {
+        float alpha = 255.f;
+        if (goalAnimState_ == 1) alpha = (goalAnimTimer_ / GOAL_ANIM_DURATION) * 255.f;
+        if (goalAnimState_ == 3) alpha = 255.f - (goalAnimTimer_ / GOAL_ANIM_DURATION) * 255.f;
+
+        if (isFoul) {
+            goalText_.setString("FOUL!");
+            goalText_.setFillColor(sf::Color(255, 30, 30, static_cast<std::uint8_t>(std::min(255.f, std::max(0.f, alpha)))));
+        }
+        else {
+            goalText_.setString("GOAL!");
+            goalText_.setFillColor(sf::Color(255, 255, 255, static_cast<std::uint8_t>(std::min(255.f, std::max(0.f, alpha)))));
+        }
+
+        goalText_.setOutlineColor(sf::Color(0, 0, 0, static_cast<std::uint8_t>(std::min(255.f, std::max(0.f, alpha)))));
+
+        // Đoạn này CỰC KỲ QUAN TRỌNG: Căn lại tâm vì chữ FOUL ngắn hơn chữ GOAL
+        sf::FloatRect textBounds = goalText_.getLocalBounds();
+        goalText_.setOrigin({ textBounds.position.x + textBounds.size.x / 2.f,
+                              textBounds.position.y + textBounds.size.y / 2.f });
+
+        window.draw(goalText_);
+    }
 }
 
 } // namespace SoccerPool

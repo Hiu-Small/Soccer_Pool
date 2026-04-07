@@ -14,7 +14,7 @@ namespace SoccerPool {
 
     enum class GameMode { PvP, PvAI, AIvsAI };
     enum class AIDifficulty { Easy, Medium, Hard };
-    enum class GamePhase { Menu, Setup, Playing, GoalScored, GameOver, PickLineup, ConfirmQuit};
+    enum class GamePhase { Menu, Setup, Playing, GoalScored, GameOver, PickLineup, ConfirmQuit, Options};
 
     struct GameConfig {
         int lineUp = 0;
@@ -59,6 +59,8 @@ namespace SoccerPool {
             resetTurnTimer(); // Luôn reset lại 30s mỗi khi đổi lượt
         }
 
+        void resolveGoalCollisions(); // Đẩy cầu thủ ra khỏi khung thành nếu lọt vào trong vạch vôi
+
         int getScore1() const { return score1_; }
         int getScore2() const { return score2_; }
         void addGoalTeam1() { ++score1_; }
@@ -90,6 +92,11 @@ namespace SoccerPool {
         void setPreviousPhase(GamePhase p) { previousPhase_ = p; }
         GamePhase getPreviousPhase() const { return previousPhase_; }
 
+        PhysicsEngine& getPhysicsEngine() { return physics_; }
+
+        void recordShot() { shotsFired_++; }
+        bool isFoul() const { return isFoul_; }
+
     private:
         void spawnPieces();
         void spawnBall();
@@ -114,6 +121,9 @@ namespace SoccerPool {
         float turnTimer_ = TURN_TIME_LIMIT;
 
         GamePhase previousPhase_; // Để biết chúng ta đến ConfirmQuit từ đâu
+
+        int shotsFired_ = 0;  // Đếm số cú sút trong 1 lượt giao bóng
+        bool isFoul_ = false; // Trạng thái có đang phạm lỗi không
 
     };
 

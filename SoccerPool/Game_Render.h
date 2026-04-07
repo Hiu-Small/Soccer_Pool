@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Clock.hpp>
 #include <memory>
+#include <SFML/Audio.hpp> // Thêm dòng này ở đầu file .h
 
 namespace SoccerPool {
 
@@ -71,6 +72,29 @@ public:
     }
 
     void setCurrentPage(int page) { currentLineupPage_ = page; }
+
+    void handleEvent(const sf::Event& event, sf::RenderWindow& window, sf::Vector2f mousePos);
+    void updateVolumeFromMouse(sf::Vector2f mousePos);
+    void setSoundVolume(float vol);
+    void setSFXVolume(float vol);
+    float getSoundVolume() const { return soundVolume_; }
+    float getSFXVolume() const { return sfxVolume_; }
+    void playHitSound();
+    void playCollideSound();
+	void playWhistleSound();
+    void playGoalSound();
+	void playGoalMusic();
+
+    bool isDraggingOptions() const { return isDraggingSound_ || isDraggingSFX_; }
+
+    void startGoalAnimation();
+    void updateGoalAnimation(float dt);
+    bool isGoalAnimationDone() const;
+
+    // ---> THÊM 2 HÀM NÀY CHO GAME OVER <---
+    void resetGameOverAnimation() { gameOverAnimTimer_ = 0.f; }
+    void updateGameOverAnimation(float dt) { gameOverAnimTimer_ += dt; }
+
 private:
     void drawField(sf::RenderWindow& window);
     void drawGoals(sf::RenderWindow& window);
@@ -87,6 +111,8 @@ private:
     void drawConfirmQuit(sf::RenderWindow& window);
 
     void applyHoverEffect(sf::Sprite& sprite, sf::FloatRect bounds, sf::Vector2f mPos, float baseScale);
+
+    void drawOptionsMenu(sf::RenderWindow& window);
 
     GameState* state_ = nullptr;
     unsigned viewWidth_ = 1000;
@@ -126,8 +152,54 @@ private:
     sf::Sprite sbSprite_;
     bool isSbLoaded_ = false;
 
-    sf::Font sbFont_;
 
+    // Tỉ lệ âm lượng (0.0f đến 1.0f)
+    float soundVolume_ = 0.5f;
+    float sfxVolume_ = 0.5f;
+
+    // ---> THÊM 2 BIẾN NÀY ĐỂ LÀM MƯỢT ÂM THANH <---
+    float targetBgVolumeMult_ = 1.0f;  // Mức âm lượng muốn đạt tới
+    float currentBgVolumeMult_ = 1.0f; // Mức âm lượng hiện tại đang phát
+
+    // Các vị trí cố định của slider (để dễ quản lý)
+    const sf::Vector2f SOUND_SLIDER_POS = { 525.f, 225.f }; // Khớp với chữ "Sound" trên khung
+    const sf::Vector2f SFX_SLIDER_POS = { 525.f, 290.f }; // Khớp với chữ "SFX" trên khung
+    //const float SLIDER_WIDTH = 250.f; // Độ dài tối đa của thanh trượt
+
+    sf::Music bgMusic_;          // Nhạc nền (Music dùng cho file dài)
+
+    sf::SoundBuffer hitBufferKick_;  // Bộ đệm âm thanh va chạm
+    sf::Sound hitSoundKick_;         // Đối tượng phát âm thanh va chạm
+
+	sf::SoundBuffer hitBufferCollide_;
+	sf::Sound hitSoundCollide_;
+
+	sf::SoundBuffer whistleBuffer_;
+	sf::Sound whistleSound_;
+
+	sf::SoundBuffer goalScoreBuffer_;
+	sf::Sound goalScoreSound_;
+
+    sf::Music stadiumEffect;
+
+	sf::SoundBuffer goalMusicBuffer_;
+	sf::Sound goalMusicSound_;
+
+    void updateSoundSliderVisual();
+    void updateSFXSliderVisual();
+
+    bool isDraggingSound_ = false; // Trạng thái đang kéo thanh Sound
+    bool isDraggingSFX_ = false;   // Trạng thái đang kéo thanh SFX
+
+    // Vị trí và kích thước thanh trượt
+    const float SLIDER_START_X = 500.f - 95.f; // 365.f
+    const float SLIDER_END_X = 500.f + 120.f;   // 635.f
+    const float SLIDER_WIDTH = 215.f;
+    const float SOUND_SLIDER_Y = 240.f;
+    const float SFX_SLIDER_Y = 330.f;
+
+    sf::Font sbFont_;
+    sf::Font goalFont_;
 
     // Texture cho Menu bóc tách
     sf::Texture menuBgTexture_;      // Nền cỏ
@@ -143,6 +215,7 @@ private:
 	sf::Texture pvaiTexture_;          // Nút PvAI
 	sf::Texture aivaiTexture_;           // Nút AI vs AI
     sf::Texture msbQuitTexture_;
+	sf::Texture iconOptionsTexture_; // Icon cài đặt (bánh răng)
 
     // Sprite tương ứng
     sf::Sprite menuBgSprite_;
@@ -158,6 +231,7 @@ private:
 	sf::Sprite pvaiSprite_;
 	sf::Sprite aivaiSprite_;
 	sf::Sprite msbQuitSprite_;
+	sf::Sprite iconOptionsSprite_;
 
     struct LineupOption {
         int id;
@@ -187,8 +261,23 @@ private:
     sf::Texture arrowLeftTexture_, arrowRightTexture_ ,startBtnTexture_, nextBtnTexture_;
     sf::Sprite arrowLeftSprite_, arrowRightSprite_, startBtnSprite_, nextBtnSprite_;
 
+	sf::Texture slideBarSoundTexture_, slideBarSFXTexture_, slideNodeSoundTexture_, slideNodeSFXTexture_, optionsKhungTexture_;
+	sf::Sprite slideBarSoundSprite_, slideBarSFXSprite_, slideNodeSoundSprite_, slideNodeSFXSprite_, optionsKhungSprite_;
+
+
+    sf::RectangleShape leftGoalBanner_;
+    sf::RectangleShape rightGoalBanner_;
+    sf::Text goalText_;
+    int goalAnimState_ = 0; // 0: Tắt, 1: Trượt vào, 2: Chờ âm thanh, 3: Trượt ra
+    float goalAnimTimer_ = 0.f;
+    const float GOAL_ANIM_DURATION = 0.5f; // Tốc độ trượt (0.5 giây)
+    void drawGoalAnimation(sf::RenderWindow& window);
+
+    float gameOverAnimTimer_ = 0.f; // ---> THÊM DÒNG NÀY
+
     // Font dành riêng cho Menu (nên dùng font dày)
     sf::Font menuFont_;
+
 };
 
 } // namespace SoccerPool

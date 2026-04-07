@@ -7,7 +7,7 @@
 
 namespace SoccerPool {
 
-const float Game_Controller::AI_DELAY_SEC = 0.8f;
+const float Game_Controller::AI_DELAY_SEC = 1.5f;
 
 Game_Controller::Game_Controller(GameState& state, Game_Render& view)
     : state_(state), view_(view) {
@@ -70,12 +70,16 @@ void Game_Controller::onGoalScored(Team scoringTeam) {
     (void)scoringTeam;
     selectedPieceIndex_ = -1;
     dragging_ = false;
+
+    view_.startGoalAnimation();
 }
 
 void Game_Controller::onGameOver(Team winner) {
     (void)winner;
     selectedPieceIndex_ = -1;
     dragging_ = false;
+
+    view_.resetGameOverAnimation();
 }
 
 void Game_Controller::endTurn() {
@@ -93,6 +97,9 @@ void Game_Controller::tryShoot(sf::Vector2f velocity) {
     auto& pieces = state_.getPieces();
     if (selectedPieceIndex_ >= static_cast<int>(pieces.size())) return;
     pieces[selectedPieceIndex_]->setVelocity(velocity);
+
+    state_.recordShot();
+
     endTurn();
 }
 
@@ -100,12 +107,29 @@ void Game_Controller::triggerAITurn() {
     Team turn = state_.getCurrentTurn();
     AIPlayer* ai = (turn == Team::Team1) ? aiPlayer1_.get() : aiPlayer2_.get();
     if (!ai) return;
+    if (!ai) {
+        aiThinkTimer_ = AI_DELAY_SEC; // Reset timer để thử lại, tránh đơ
+        return;
+    }
     AIShot shot = ai->computeShot();
     if (!shot.valid || shot.pieceIndex < 0) return;
+    if (!shot.valid || shot.pieceIndex < 0) {
+        // CRITICAL FIX: Không tìm được nước đi → vẫn phải endTurn để tránh treo game
+        endTurn();
+        return;
+    }
     auto& pieces = state_.getPieces();
     if (shot.pieceIndex >= static_cast<int>(pieces.size())) return;
     if (pieces[shot.pieceIndex]->getTeam() != turn) return;
+    if (shot.pieceIndex >= static_cast<int>(pieces.size()) ||
+        pieces[shot.pieceIndex]->getTeam() != turn) {
+        endTurn(); // Shot không hợp lệ → vẫn endTurn
+        return;
+    }
     pieces[shot.pieceIndex]->setVelocity(shot.velocity);
+
+    state_.recordShot();
+
     endTurn();
 }
 
@@ -145,6 +169,9 @@ void Game_Controller::handlePickLineup(sf::Vector2f mPos) {
                 // ---------------------
 
                 state_.startNewMatch();      // VÀO CHƠI LUÔN
+
+                // ---> THÊM DÒNG NÀY ĐỂ THỔI CÒI <---
+                view_.playWhistleSound();
             }
             else {
                 // Chuyển sang cho Team 2 chọn
@@ -158,6 +185,8 @@ void Game_Controller::handlePickLineup(sf::Vector2f mPos) {
             // Đã là Team 2 chọn xong
             state_.setTeam2Formation(currentSelected);
             state_.startNewMatch(); // VÀO CHƠI
+            // ---> THÊM DÒNG NÀY ĐỂ THỔI CÒI <---
+            view_.playWhistleSound();
             aiThinkTimer_ = AI_DELAY_SEC;
         }
         return;
@@ -389,8 +418,13 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
         return; // CHẶN TOÀN BỘ các phase khác khi đang hiện MSB
     }
 
-    // --- PHASE MENU / SETUP / LINEUP ---
-    if (currentPhase == GamePhase::Menu || currentPhase == GamePhase::Setup || currentPhase == GamePhase::PickLineup) {
+    // --- PHASE MENU / SETUP / LINEUP / OPTIONS ---
+    if (currentPhase == GamePhase::Menu || currentPhase == GamePhase::Setup || currentPhase == GamePhase::PickLineup || currentPhase == GamePhase::Options) {
+        // --- CHUYỂN DÒNG NÀY RA NGOÀI ĐỂ BẮT ĐƯỢC SỰ KIỆN KÉO VÀ THẢ CHUỘT ---
+        if (currentPhase == GamePhase::Options && isMouseEvent) {
+            view_.handleEvent(event, window, mPos);
+        }
+        
         if (isMouseEvent && event.is<sf::Event::MouseButtonPressed>()) {
             const auto& me = event.getIf<sf::Event::MouseButtonPressed>();
             if (me->button == sf::Mouse::Button::Left) {
@@ -403,6 +437,15 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
                         return;
                     }
 
+
+                    sf::FloatRect optionsRect({ 375.f, 340.f }, { 250.f, 80.f });
+                    if (optionsRect.contains(mPos)) {
+                        state_.setPreviousPhase(GamePhase::Menu);
+                        state_.setPhase(GamePhase::Options);
+                        return;
+                    }
+
+
                     // Vùng nút QUIT (Góc trên phải {950, 50})
                     sf::FloatRect quitRect({ 950.f - 25.f, 50.f - 25.f },{ 50.f, 50.f});
                     if (quitRect.contains(mPos)) {
@@ -411,6 +454,13 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
                         return;
                     } 
                 }
+                else if (currentPhase == GamePhase::Options) {
+                    // Nút Back (Góc trên trái {50, 50})
+                    if (sf::FloatRect({ 50.f - 20.f, 50.f - 20.f }, { 40.f, 40.f }).contains(mPos)) {
+                        state_.setPhase(state_.getPreviousPhase());
+                        return;
+                    }
+				}
                 else if (currentPhase == GamePhase::Setup) {
                     //Nút Player vs Player 
                     if (sf::FloatRect({ 490.f - 125.f, 200.f - 30.f }, { 280.f, 70.f }).contains(mPos)) {
@@ -506,6 +556,12 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
                 state_.setPhase(GamePhase::ConfirmQuit);
                 return; // Thoát luôn để không kéo trúng cầu thủ nằm dưới nút
             }
+
+            if (sf::FloatRect({ 950.f - 20.f, 50.f - 20.f }, { 50.f, 50.f }).contains(mPos)) {
+                state_.setPreviousPhase(GamePhase::Playing);
+                state_.setPhase(GamePhase::Options);
+                return; // Thoát luôn để không kéo trúng cầu thủ nằm dưới nút
+            }
         }
     }
 
@@ -548,18 +604,62 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
 
 void Game_Controller::update(float dt) {
     if (state_.getPhase() == GamePhase::GoalScored) {
-        state_.resetPositionsAfterGoal();
+        // 1. Phải gọi update thì Banner chữ GOAL mới trượt ra trượt vào được
+        view_.updateGoalAnimation(dt);
+
+        // 2. CHỈ reset bóng và cầu thủ KHI hiệu ứng chữ GOAL đã chạy xong 100%
+        if (view_.isGoalAnimationDone()) {
+            state_.resetPositionsAfterGoal();
+            // --- RESET AI TIMER SAU KHI GHI BÀN ---
+            if (!isCurrentPlayerHuman()) {
+                aiThinkTimer_ = AI_DELAY_SEC;
+            }
+        }
         return;
     }
+
+    // ---> THÊM ĐOẠN NÀY ĐỂ CHẠY ANIMATION KHI KẾT THÚC GAME <---
+    if (state_.getPhase() == GamePhase::GameOver) {
+        view_.updateGameOverAnimation(dt);
+    }
+    // -----------------------------------------------------------
+
     state_.update(dt);
 
-    sf::Vector2f ballPos = state_.getBall().getPosition();
+    // ====== THÊM ĐOẠN NÀY ĐỂ BẮT SỰ KIỆN PHÁT ÂM THANH ======
+    // Kiểm tra cờ playHitSoundFlag từ PhysicsEngine thông qua GameState
+    if (state_.getPhysicsEngine().playHitSoundFlag) {
+        view_.playHitSound(); // Kích hoạt tiếng sút bên Game_Render
+        state_.getPhysicsEngine().playHitSoundFlag = false; // Tắt cờ để không bị kêu liên tục
+    }
+    // ==========================================================
+    // ====== BỔ SUNG ĐOẠN NÀY ĐỂ BẮT SỰ KIỆN TIẾNG VA CHẠM ======
+    if (state_.getPhysicsEngine().playCollideSoundFlag) {
+        view_.playCollideSound();
+        state_.getPhysicsEngine().playCollideSoundFlag = false;
+    }
+    // ============================================================
+
+    //sf::Vector2f ballPos = state_.getBall().getPosition();
     //printf("Ball Position: X = %.2f, Y = %.2f\n", ballPos.x, ballPos.y);
 
     if (state_.getPhase() == GamePhase::Playing && !isCurrentPlayerHuman()) {
-        aiThinkTimer_ -= dt;
-        if (aiThinkTimer_ <= 0.f && state_.isEverythingStopped()) {
-            triggerAITurn();
+        // CHỈ bắt đầu trừ thời gian chờ khi mọi thứ trên sân ĐÃ DỪNG LẠI HẲN
+        if (state_.isEverythingStopped()) {
+            aiThinkTimer_ -= dt;
+
+            // Nếu đã chờ đủ 2 giây
+            if (aiThinkTimer_ <= 0.f) {
+                // Ép GameState phải dọn dẹp cầu thủ kẹt trong gôn trước khi cho AI nhắm bắn
+                state_.resolveGoalCollisions();
+
+                triggerAITurn();
+            }
+        }
+        else {
+            // QUAN TRỌNG: Nếu bóng hoặc cầu thủ vẫn còn đang lăn, 
+            // liên tục reset đồng hồ về 2 giây.
+            aiThinkTimer_ = AI_DELAY_SEC;
         }
     }
 }
@@ -583,7 +683,22 @@ bool Game_Controller::isMouseOverInteractive(sf::Vector2f mousePos) const {
         if (sf::FloatRect({ 375.f, 210.f }, { 250.f, 80.f }).contains(mousePos)) return true;
         // Nút QUIT
         if (sf::FloatRect({ 925.f, 25.f }, { 50.f, 50.f }).contains(mousePos)) return true;
+		// Nút OPTIONS
+		if (sf::FloatRect({ 375.f, 340.f }, { 250.f, 80.f }).contains(mousePos)) return true;
     }
+    else if (phase == GamePhase::Options) {
+        // Nút Back
+        if (sf::FloatRect({ 30.f, 30.f }, { 40.f, 40.f }).contains(mousePos)) return true;
+
+        // 1. Nếu đang GIỮ chuột để kéo thanh trượt (dù chuột có trượt ra ngoài viền vẫn hiện bàn tay)
+        if (view_.isDraggingOptions()) return true;
+
+        // 2. Nếu đang DI CHUỘT lướt qua vùng chứa thanh Sound hoặc nút Sound
+        if (sf::FloatRect({ 320.f, 220.f }, { 280.f, 50.f }).contains(mousePos)) return true;
+
+        // 3. Nếu đang DI CHUỘT lướt qua vùng chứa thanh SFX hoặc nút SFX
+        if (sf::FloatRect({ 320.f, 310.f }, { 280.f, 50.f }).contains(mousePos)) return true;
+	}
     else if (phase == GamePhase::Setup) {
         // 3 nút chọn chế độ chơi
         if (sf::FloatRect({ 365.f, 170.f }, { 280.f, 70.f }).contains(mousePos)) return true;
@@ -620,7 +735,7 @@ bool Game_Controller::isMouseOverInteractive(sf::Vector2f mousePos) const {
     else if (phase == GamePhase::Playing) {
         // Nút Back
         if (sf::FloatRect({ 30.f, 30.f }, { 40.f, 40.f }).contains(mousePos)) return true;
-
+		if (sf::FloatRect({ 930.f, 30.f }, { 50.f, 50.f }).contains(mousePos)) return true;
         if (state_.isEverythingStopped() && isCurrentPlayerHuman()) {
             if (getPieceIndexAt(mousePos) != -1) return true;
         }
