@@ -1,4 +1,4 @@
- #pragma once
+﻿ #pragma once
 
 #include "GameState.h"
 #include "Game_Render.h"
@@ -20,6 +20,7 @@ public:
     void draw(sf::RenderWindow& window);
     //oid handleMouseInput(sf::Event& event, sf::RenderWindow& window);
     void handlePickLineup(sf::Vector2f mPos);
+    void handlePickTeam(sf::Vector2f mPos);
 
 private:
     void startGameWithMode(int menuChoice);
@@ -48,7 +49,7 @@ private:
     float aiThinkTimer_ = 0.f;
     static const float AI_DELAY_SEC;
 
-    std::optional<sf::Cursor> handCursor_;    // D�ng optional
+    std::optional<sf::Cursor> handCursor_;    // Dùng optional
     std::optional<sf::Cursor> defaultCursor_;
     bool isMouseOverInteractive(sf::Vector2f mousePos) const;
 };

@@ -35,6 +35,7 @@ int main()
         }
 
         float dt = clock.restart().asSeconds();
+        dt = std::min(dt, 0.05f);
         controller.update(dt);
 
         window.clear(sf::Color(20, 20, 30));

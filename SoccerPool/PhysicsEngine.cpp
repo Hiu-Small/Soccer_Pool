@@ -44,7 +44,8 @@ namespace SoccerPool {
         }
 
         // Hệ số bồi hoàn (Restitution) - Giống Soccer Stars
-        float e = 0.85f;
+        // Hệ số bồi hoàn (Restitution) - Lấy từ Constants.h
+        float e = COLLISION_RESISTANCE_BALL;
 
         // Tính toán lực xung (Impulse scalar)
         float j = -(1 + e) * velAlongNormal;
@@ -62,7 +63,11 @@ namespace SoccerPool {
         auto& b = *ball_;
         sf::Vector2f p = b.getPosition();
         sf::Vector2f v = b.getVelocity();
-        float r = BALL_RADIUS;
+
+        // ---> FIX: THU NHỎ HITBOX KHI BÓNG ĐẬP TƯỜNG <---
+        // Dùng chung hệ số bạn đã chốt ở resolveBallPiece (VD: 0.85f)
+        const float BALL_HITBOX_SCALE = 0.85f;
+        float r = BALL_RADIUS * BALL_HITBOX_SCALE;
 
         float minX = FIELD_MARGIN_X + r;
         float maxX = FIELD_WIDTH - FIELD_MARGIN_X - r;
@@ -158,7 +163,12 @@ namespace SoccerPool {
     void PhysicsEngine::resolveWallPiece(Piece& p_obj) {
         sf::Vector2f p = p_obj.getPosition();
         sf::Vector2f v = p_obj.getVelocity();
-        float r = PIECE_RADIUS;
+
+        // ---> FIX: THU NHỎ HITBOX KHI CẦU THỦ ĐẬP TƯỜNG <---
+        // Dùng chung hệ số 0.80f để cầu thủ lún sát được vào vạch kẻ biên
+        const float PIECE_HITBOX_SCALE = 0.80f;
+        float r = PIECE_RADIUS * PIECE_HITBOX_SCALE;
+
         bool hit = false;
         float pieceWallRestitution = 0.6f;
 
@@ -251,14 +261,22 @@ namespace SoccerPool {
     }
 
     void PhysicsEngine::resolveBallPiece(Ball& b, Piece& p) {
-        if (!circleCircle(b.getPosition(), BALL_RADIUS, p.getPosition(), PIECE_RADIUS)) return;
+        // ---> FIX: THU NHỎ HITBOX CHO CẦU THỦ <---
+        const float PIECE_HITBOX_SCALE = 0.80f;
+        const float PIECE_COLLISION_RADIUS = PIECE_RADIUS * PIECE_HITBOX_SCALE;
+
+        // Bạn có thể chỉnh sửa số này (ví dụ: 0.85f, 0.9f) để xem mức độ lún nào nhìn đẹp nhất
+        const float BALL_HITBOX_SCALE = 0.80f;
+        const float BALL_COLLISION_RADIUS = BALL_RADIUS * BALL_HITBOX_SCALE;
+
+        if (!circleCircle(b.getPosition(), BALL_COLLISION_RADIUS, p.getPosition(), PIECE_COLLISION_RADIUS)) return;
 
         sf::Vector2f p1 = b.getPosition(), p2 = p.getPosition();
         sf::Vector2f v1 = b.getVelocity(), v2 = p.getVelocity();
 
         sf::Vector2f d = p1 - p2;
         float len = std::sqrt(d.x * d.x + d.y * d.y);
-        float overlap = BALL_RADIUS + PIECE_RADIUS - len;
+        float overlap = BALL_COLLISION_RADIUS + PIECE_COLLISION_RADIUS - len;
 
         if (len > 1e-6f && overlap > 0.f) {
             d.x /= len;
@@ -287,19 +305,24 @@ namespace SoccerPool {
     }
 
     void PhysicsEngine::resolvePiecePiece(Piece& a, Piece& b) {
-        if (!circleCircle(a.getPosition(), PIECE_RADIUS, b.getPosition(), PIECE_RADIUS)) return;
+        // TẠO HITBOX THU NHỎ: 0.85f nghĩa là hitbox chỉ bằng 85% bán kính ảnh gốc.
+        // Bạn có thể tự chỉnh con số này (vd: 0.8f, 0.9f) đến khi thấy 2 cầu thủ cụng nhau vừa khít.
+        const float HITBOX_SCALE = 0.80f;
+        const float COLLISION_RADIUS = PIECE_RADIUS * HITBOX_SCALE;
+
+        if (!circleCircle(a.getPosition(), COLLISION_RADIUS, b.getPosition(), COLLISION_RADIUS)) return;
 
         sf::Vector2f p1 = a.getPosition(), p2 = b.getPosition();
         sf::Vector2f v1 = a.getVelocity(), v2 = b.getVelocity();
 
         sf::Vector2f d = p1 - p2;
         float len = std::sqrt(d.x * d.x + d.y * d.y);
-        float overlap = 2.f * PIECE_RADIUS - len;
+        float overlap = 2.f * COLLISION_RADIUS - len;
 
         if (len > 1e-6f && overlap > 0.f) {
             d.x /= len;
             d.y /= len;
-            float half = (overlap * 0.8f) * 0.5f;
+            float half = overlap * 0.5f;
             a.setPosition(sf::Vector2f(p1.x + d.x * half, p1.y + d.y * half));
             b.setPosition(sf::Vector2f(p2.x - d.x * half, p2.y - d.y * half));
         }
@@ -340,54 +363,68 @@ namespace SoccerPool {
     }
 
     void PhysicsEngine::resolveCollisions() {
-        if (pieces_) {
-            for (size_t i = 0; i < pieces_->size(); ++i)
-                for (size_t j = i + 1; j < pieces_->size(); ++j)
-                    resolvePiecePiece(*(*pieces_)[i], *(*pieces_)[j]);
-
-            if (ball_) {
-                for (auto& p : *pieces_) resolveBallPiece(*ball_, *p);
-            }
-        }
-
-        // ƯU TIÊN 1: XỬ LÝ 4 CỘT DỌC GÔN (Tránh kẹt góc vuông)
-        sf::Vector2f postL_Top(FIELD_MARGIN_X, GOAL_Y_OFFSET);
-        sf::Vector2f postL_Bot(FIELD_MARGIN_X, GOAL_Y_OFFSET + GOAL_HEIGHT);
-        sf::Vector2f postR_Top(FIELD_WIDTH - FIELD_MARGIN_X, GOAL_Y_OFFSET);
-        sf::Vector2f postR_Bot(FIELD_WIDTH - FIELD_MARGIN_X, GOAL_Y_OFFSET + GOAL_HEIGHT);
+    if (pieces_) {
+        for (size_t i = 0; i < pieces_->size(); ++i)
+            for (size_t j = i + 1; j < pieces_->size(); ++j)
+                resolvePiecePiece(*(*pieces_)[i], *(*pieces_)[j]);
 
         if (ball_) {
-            sf::Vector2f bPos = ball_->getPosition();
-            sf::Vector2f bVel = ball_->getVelocity();
-            float bRestitution = 0.85f;
-            resolveCircleCollision(bPos, bVel, BALL_RADIUS, postL_Top, bRestitution);
-            resolveCircleCollision(bPos, bVel, BALL_RADIUS, postL_Bot, bRestitution);
-            resolveCircleCollision(bPos, bVel, BALL_RADIUS, postR_Top, bRestitution);
-            resolveCircleCollision(bPos, bVel, BALL_RADIUS, postR_Bot, bRestitution);
-            ball_->setPosition(bPos);
-            ball_->setVelocity(bVel);
-        }
-
-        if (pieces_) {
-            float pRestitution = 0.6f;
-            for (auto& p : *pieces_) {
-                sf::Vector2f pPos = p->getPosition();
-                sf::Vector2f pVel = p->getVelocity();
-                resolveCircleCollision(pPos, pVel, PIECE_RADIUS, postL_Top, pRestitution);
-                resolveCircleCollision(pPos, pVel, PIECE_RADIUS, postL_Bot, pRestitution);
-                resolveCircleCollision(pPos, pVel, PIECE_RADIUS, postR_Top, pRestitution);
-                resolveCircleCollision(pPos, pVel, PIECE_RADIUS, postR_Bot, pRestitution);
-                p->setPosition(pPos);
-                p->setVelocity(pVel);
-            }
-        }
-
-        // ƯU TIÊN 2: XỬ LÝ CÁC VÁCH TƯỜNG (AABB)
-        resolveWallBall();
-        if (pieces_) {
-            for (auto& p : *pieces_) resolveWallPiece(*p);
+            for (auto& p : *pieces_) resolveBallPiece(*ball_, *p);
         }
     }
+
+    // ƯU TIÊN 1: XỬ LÝ 4 CỘT DỌC GÔN (Tránh kẹt góc vuông)
+    sf::Vector2f postL_Top(FIELD_MARGIN_X, GOAL_Y_OFFSET);
+    sf::Vector2f postL_Bot(FIELD_MARGIN_X, GOAL_Y_OFFSET + GOAL_HEIGHT);
+    sf::Vector2f postR_Top(FIELD_WIDTH - FIELD_MARGIN_X, GOAL_Y_OFFSET);
+    sf::Vector2f postR_Bot(FIELD_WIDTH - FIELD_MARGIN_X, GOAL_Y_OFFSET + GOAL_HEIGHT);
+
+    // ---> FIX HITBOX CHO CỘT DỌC <---
+    const float BALL_HITBOX_SCALE = 0.80f; // Dùng chung hệ số ở các hàm trước
+    const float PIECE_HITBOX_SCALE = 0.80f; 
+
+    if (ball_) {
+        sf::Vector2f bPos = ball_->getPosition();
+        sf::Vector2f bVel = ball_->getVelocity();
+        float bRestitution = 0.85f;
+        
+        // Truyền bán kính đã thu nhỏ vào
+        float ballCollisionRadius = BALL_RADIUS * BALL_HITBOX_SCALE;
+        
+        resolveCircleCollision(bPos, bVel, ballCollisionRadius, postL_Top, bRestitution);
+        resolveCircleCollision(bPos, bVel, ballCollisionRadius, postL_Bot, bRestitution);
+        resolveCircleCollision(bPos, bVel, ballCollisionRadius, postR_Top, bRestitution);
+        resolveCircleCollision(bPos, bVel, ballCollisionRadius, postR_Bot, bRestitution);
+        
+        ball_->setPosition(bPos);
+        ball_->setVelocity(bVel);
+    }
+
+    if (pieces_) {
+        float pRestitution = 0.6f;
+        float pieceCollisionRadius = PIECE_RADIUS * PIECE_HITBOX_SCALE;
+        
+        for (auto& p : *pieces_) {
+            sf::Vector2f pPos = p->getPosition();
+            sf::Vector2f pVel = p->getVelocity();
+            
+            // Truyền bán kính đã thu nhỏ vào
+            resolveCircleCollision(pPos, pVel, pieceCollisionRadius, postL_Top, pRestitution);
+            resolveCircleCollision(pPos, pVel, pieceCollisionRadius, postL_Bot, pRestitution);
+            resolveCircleCollision(pPos, pVel, pieceCollisionRadius, postR_Top, pRestitution);
+            resolveCircleCollision(pPos, pVel, pieceCollisionRadius, postR_Bot, pRestitution);
+            
+            p->setPosition(pPos);
+            p->setVelocity(pVel);
+        }
+    }
+
+    // ƯU TIÊN 2: XỬ LÝ CÁC VÁCH TƯỜNG (AABB)
+    resolveWallBall();
+    if (pieces_) {
+        for (auto& p : *pieces_) resolveWallPiece(*p);
+    }
+}
 
     int PhysicsEngine::checkGoal() const {
         if (!ball_) return 0;

@@ -4,6 +4,7 @@
 #include <optional>
 #include <memory>
 #include <algorithm>
+#include <iostream>
 
 namespace SoccerPool {
 
@@ -133,6 +134,82 @@ void Game_Controller::triggerAITurn() {
     endTurn();
 }
 
+void Game_Controller::handlePickTeam(sf::Vector2f mPos) {
+    // 1. CHỌN ĐỘI
+    int startIdx = view_.getCurrentTeamPage() * 4;
+    for (int i = 0; i < 4 && (startIdx + i) < view_.getTeamCount(); ++i) {
+        int row = i / 2;
+        int col = i % 2;
+        sf::FloatRect cardRect({ 350.f + col * 300.f - 100.f, 160.f + row * 160.f - 60.f }, { 200.f, 150.f });
+
+        if (cardRect.contains(mPos)) {
+            view_.setSelectedTeamId(startIdx + i);
+            return;
+        }
+    }
+
+    // 2. BẤM NEXT HOẶC START
+    sf::FloatRect nextBtnRect({ 420.f, 425.f }, { 160.f, 50.f });
+    if (nextBtnRect.contains(mPos)) {
+        int currentSelected = view_.getSelectedTeamId();
+        if (currentSelected == -1) return; // Chưa chọn không cho qua
+
+        if (view_.getPickingTeamFor() == 1) {
+            state_.setTeamAbbr(Team::Team1, view_.getTeamAbbrById(currentSelected));
+
+            if (state_.getConfig().mode == GameMode::PvAI) {
+                // Tự động random 1 đội cho AI
+                state_.setTeamAbbr(Team::Team2, view_.getTeamAbbrById(rand() % 20));
+
+                // MỘT MÌNH CHƠI THÌ NHẢY THẲNG SANG CHỌN ĐỘI HÌNH
+                state_.setPhase(GamePhase::PickLineup);
+                view_.setPickingTeam(1);
+                view_.setCurrentPage(0);
+            }
+            else {
+                // CHỜ NGƯỜI THỨ 2 CHỌN ĐỘI
+                view_.setPickingTeamFor(2);
+                view_.setSelectedTeamId(-1);
+                view_.setCurrentTeamPage(0);
+            }
+        }
+        else {
+            // Người thứ 2 đã chọn xong
+            state_.setTeamAbbr(Team::Team2, view_.getTeamAbbrById(currentSelected));
+            state_.setPhase(GamePhase::PickLineup); // Chuyển sang chọn Đội hình
+            view_.setPickingTeam(1);
+            view_.setCurrentPage(0);
+        }
+        return;
+    }
+
+    // 3. MŨI TÊN CHUYỂN TRANG
+    if (view_.getCurrentTeamPage() > 0 && sf::FloatRect({ 40.f, 230.f }, { 80.f, 40.f }).contains(mPos)) {
+        view_.prevTeamPage();
+        view_.setSelectedTeamId(-1);
+    }
+    if ((view_.getCurrentTeamPage() + 1) * 4 < view_.getTeamCount() && sf::FloatRect({ 885.f, 230.f }, { 80.f, 40.f }).contains(mPos)) {
+        view_.nextTeamPage();
+        view_.setSelectedTeamId(-1);
+    }
+
+    // 4. NÚT BACK
+    if (sf::FloatRect({ 30.f, 30.f }, { 40.f, 40.f }).contains(mPos)) {
+        if (view_.getPickingTeamFor() == 2) {
+            // Nếu P2 đang chọn, back lại cho P1 chọn lại
+            view_.setPickingTeamFor(1);
+            view_.setSelectedTeamId(-1);
+            view_.setCurrentTeamPage(0);
+        }
+        else {
+            // Nếu P1 đang chọn, back hẳn ra Menu Setup Mode
+            state_.setPhase(GamePhase::Setup);
+            view_.setSelectedTeamId(-1);
+            view_.setCurrentTeamPage(0);
+        }
+    }
+}
+
 
 void Game_Controller::handlePickLineup(sf::Vector2f mPos) {
     // 1. CHỌN ĐỘI HÌNH (Chỉ để hiện viền, chưa chốt)
@@ -170,6 +247,9 @@ void Game_Controller::handlePickLineup(sf::Vector2f mPos) {
 
                 state_.startNewMatch();      // VÀO CHƠI LUÔN
 
+                // ---> GỌI HÀM LOAD LOGO Ở ĐÂY <---
+                view_.loadTeamLogos();
+
                 // ---> THÊM DÒNG NÀY ĐỂ THỔI CÒI <---
                 view_.playWhistleSound();
             }
@@ -185,6 +265,10 @@ void Game_Controller::handlePickLineup(sf::Vector2f mPos) {
             // Đã là Team 2 chọn xong
             state_.setTeam2Formation(currentSelected);
             state_.startNewMatch(); // VÀO CHƠI
+
+            // ---> GỌI HÀM LOAD LOGO Ở ĐÂY <---
+            view_.loadTeamLogos();
+
             // ---> THÊM DÒNG NÀY ĐỂ THỔI CÒI <---
             view_.playWhistleSound();
             aiThinkTimer_ = AI_DELAY_SEC;
@@ -213,9 +297,20 @@ void Game_Controller::handlePickLineup(sf::Vector2f mPos) {
 
     // 4. Nút Back (Return) góc trên trái
     if (sf::FloatRect({ 30.f, 30.f }, { 40.f, 40.f }).contains(mPos)) {
-        state_.setPhase(GamePhase::Setup);
-        view_.setSelectedLineupId(-1); // Reset khi quay lại
-        view_.resetSelectionState();
+        if (view_.getPickingTeam() == 2) {
+            // Đang ở Pick Lineup 2 -> Về Pick Lineup 1 (Trang 0)
+            view_.setPickingTeam(1);
+            view_.setSelectedLineupId(-1);
+            view_.setCurrentPage(0); // FIX: Ép về trang 0
+        }
+        else {
+            // Đang ở Pick Lineup 1 -> Về Pick Team 2 (Trang 0)
+            state_.setPhase(GamePhase::PickTeam);
+            view_.setPickingTeamFor(2); // FIX: Set state về cho P2 chọn đội
+            view_.setSelectedLineupId(-1);
+            view_.setCurrentTeamPage(0); // FIX: Ép về trang 0 của màn hình chọn đội
+            view_.resetSelectionState(); // Reset luôn viền vàng bên Pick Team
+        }
     }
 }
 
@@ -419,7 +514,7 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
     }
 
     // --- PHASE MENU / SETUP / LINEUP / OPTIONS ---
-    if (currentPhase == GamePhase::Menu || currentPhase == GamePhase::Setup || currentPhase == GamePhase::PickLineup || currentPhase == GamePhase::Options) {
+    if (currentPhase == GamePhase::Menu || currentPhase == GamePhase::Setup || currentPhase == GamePhase::PickLineup || currentPhase == GamePhase::Options || currentPhase == GamePhase::PickTeam) {
         // --- CHUYỂN DÒNG NÀY RA NGOÀI ĐỂ BẮT ĐƯỢC SỰ KIỆN KÉO VÀ THẢ CHUỘT ---
         if (currentPhase == GamePhase::Options && isMouseEvent) {
             view_.handleEvent(event, window, mPos);
@@ -467,7 +562,8 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
                         //startGameWithMode(1); // Gọi hàm khởi tạo PvP của bạn
                         GameConfig cfg; cfg.mode = GameMode::PvP; state_.setConfig(cfg);
                         view_.setPickingTeam(1);
-                        state_.setPhase(GamePhase::PickLineup);
+                        state_.setPhase(GamePhase::PickTeam); // Đổi từ PickLineup sang PickTeam
+                        view_.setPickingTeamFor(1);
                         return;
                     }
                     // Nút Player vs AI 
@@ -475,7 +571,8 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
                         //startGameWithMode(2); // Giả sử 3 là PvAI Medium
                         GameConfig cfg; cfg.mode = GameMode::PvAI; state_.setConfig(cfg);
                         view_.setPickingTeam(1);
-                        state_.setPhase(GamePhase::PickLineup);
+                        state_.setPhase(GamePhase::PickTeam); // Đổi từ PickLineup sang PickTeam
+                        view_.setPickingTeamFor(1);
                         return;
                     }
                     // Nút AI vs AI 
@@ -490,7 +587,8 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
                         aiPlayer2_->setState(&state_);
 
                         view_.setPickingTeam(1);
-                        state_.setPhase(GamePhase::PickLineup);
+                        state_.setPhase(GamePhase::PickTeam); // Đổi từ PickLineup sang PickTeam
+                        view_.setPickingTeamFor(1);
                         return;
                     }
                     // Nút Back (Góc trên trái {50, 50})
@@ -528,6 +626,9 @@ void Game_Controller::handleEvent(const sf::Event& event, sf::RenderWindow& wind
                 //    }
                 //    return; // Chặn mọi thao tác khác khi đang hiện bảng
                 //}
+                else if (currentPhase == GamePhase::PickTeam) {
+                    handlePickTeam(mPos);
+                }
                 else if (currentPhase == GamePhase::PickLineup) handlePickLineup(mPos);
             }
         }
@@ -705,6 +806,17 @@ bool Game_Controller::isMouseOverInteractive(sf::Vector2f mousePos) const {
         if (sf::FloatRect({ 365.f, 260.f }, { 280.f, 70.f }).contains(mousePos)) return true;
         if (sf::FloatRect({ 365.f, 350.f }, { 280.f, 70.f }).contains(mousePos)) return true;
         // Nút Back
+        if (sf::FloatRect({ 30.f, 30.f }, { 40.f, 40.f }).contains(mousePos)) return true;
+    }
+    else if (phase == GamePhase::PickTeam) {
+        int startIdx = view_.getCurrentTeamPage() * 4;
+        for (int i = 0; i < 4; ++i) {
+            int row = i / 2; int col = i % 2;
+            if (sf::FloatRect({ 350.f + col * 300.f - 100.f, 160.f + row * 160.f - 60.f }, { 200.f, 150.f }).contains(mousePos)) return true;
+        }
+        if (sf::FloatRect({ 420.f, 425.f }, { 160.f, 50.f }).contains(mousePos)) return true; // Btn
+        if (view_.getCurrentTeamPage() > 0 && sf::FloatRect({ 40.f, 230.f }, { 80.f, 40.f }).contains(mousePos)) return true;
+        if ((view_.getCurrentTeamPage() + 1) * 4 < view_.getTeamCount() && sf::FloatRect({ 885.f, 230.f }, { 80.f, 40.f }).contains(mousePos)) return true;
         if (sf::FloatRect({ 30.f, 30.f }, { 40.f, 40.f }).contains(mousePos)) return true;
     }
     else if (phase == GamePhase::PickLineup) {

@@ -9,12 +9,13 @@
 #include <vector>
 #include <functional>
 #include <optional>
+#include <iostream>
 
 namespace SoccerPool {
 
     enum class GameMode { PvP, PvAI, AIvsAI };
     enum class AIDifficulty { Easy, Medium, Hard };
-    enum class GamePhase { Menu, Setup, Playing, GoalScored, GameOver, PickLineup, ConfirmQuit, Options};
+    enum class GamePhase { Menu, Setup, PickTeam, Playing, GoalScored, GameOver, PickLineup, ConfirmQuit, Options};
 
     struct GameConfig {
         int lineUp = 0;
@@ -95,7 +96,16 @@ namespace SoccerPool {
         PhysicsEngine& getPhysicsEngine() { return physics_; }
 
         void recordShot() { shotsFired_++; }
+        int getShotsFired() const { return shotsFired_; }
         bool isFoul() const { return isFoul_; }
+
+        void setTeamAbbr(Team t, std::string abbr) {
+            if (t == Team::Team1) team1Abbr_ = abbr;
+            else team2Abbr_ = abbr;
+        }
+        std::string getTeamAbbr(Team t) const {
+            return (t == Team::Team1) ? team1Abbr_ : team2Abbr_;
+        }
 
     private:
         void spawnPieces();
@@ -124,6 +134,9 @@ namespace SoccerPool {
 
         int shotsFired_ = 0;  // Đếm số cú sút trong 1 lượt giao bóng
         bool isFoul_ = false; // Trạng thái có đang phạm lỗi không
+
+        std::string team1Abbr_ = "P1";
+        std::string team2Abbr_ = "P2";
 
     };
 

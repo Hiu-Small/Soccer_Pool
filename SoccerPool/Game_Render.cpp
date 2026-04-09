@@ -7,7 +7,27 @@
 
 namespace SoccerPool {
 
-    Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTexture_), team1Sprite_(team1Texture_), team2Sprite_(team2Texture_), sbSprite_(sbTexture_), menuBgSprite_(menuBgTexture_), ball8Sprite_(ball8Texture_), goalMenuSprite_(goalMenuTexture_), ballMenuSprite_(ballMenuTexture_), btnPlaySprite_(btnPlayTexture_), btnOptionsSprite_(btnOptionsTexture_), iconQuitSprite_(iconQuitTexture_), iconInforSprite_(iconInforTexture_), iconReturnSprite_(iconReturnTexture_), pvpSprite_(pvpTexture_), pvaiSprite_(pvaiTexture_), aivaiSprite_(aivaiTexture_), arrowLeftSprite_(arrowLeftTexture_), arrowRightSprite_(arrowRightTexture_), startBtnSprite_(startBtnTexture_), nextBtnSprite_(nextBtnTexture_), msbQuitSprite_(msbQuitTexture_), slideBarSoundSprite_(slideBarSoundTexture_), slideNodeSoundSprite_(slideNodeSoundTexture_), slideBarSFXSprite_(slideBarSFXTexture_), slideNodeSFXSprite_(slideNodeSFXTexture_), optionsKhungSprite_(optionsKhungTexture_), bgMusic_(), hitSoundKick_(hitBufferKick_), hitSoundCollide_(hitBufferCollide_), whistleSound_(whistleBuffer_), goalScoreSound_(goalScoreBuffer_), goalText_(goalFont_), goalMusicSound_(goalMusicBuffer_), iconOptionsSprite_(iconOptionsTexture_) {
+    Game_Render::Game_Render() : fieldSprite_(fieldTexture_), ballSprite_(ballTexture_), team1Sprite_(team1Texture_), team2Sprite_(team2Texture_), sbSprite_(sbTexture_), menuBgSprite_(menuBgTexture_), ball8Sprite_(ball8Texture_), goalMenuSprite_(goalMenuTexture_), ballMenuSprite_(ballMenuTexture_), btnPlaySprite_(btnPlayTexture_), btnOptionsSprite_(btnOptionsTexture_), iconQuitSprite_(iconQuitTexture_), iconInforSprite_(iconInforTexture_), iconReturnSprite_(iconReturnTexture_), pvpSprite_(pvpTexture_), pvaiSprite_(pvaiTexture_), aivaiSprite_(aivaiTexture_), arrowLeftSprite_(arrowLeftTexture_), arrowRightSprite_(arrowRightTexture_), startBtnSprite_(startBtnTexture_), nextBtnSprite_(nextBtnTexture_), msbQuitSprite_(msbQuitTexture_), slideBarSoundSprite_(slideBarSoundTexture_), slideNodeSoundSprite_(slideNodeSoundTexture_), slideBarSFXSprite_(slideBarSFXTexture_), slideNodeSFXSprite_(slideNodeSFXTexture_), optionsKhungSprite_(optionsKhungTexture_), bgMusic_(), hitSoundKick_(hitBufferKick_), hitSoundCollide_(hitBufferCollide_), whistleSound_(whistleBuffer_), goalScoreSound_(goalScoreBuffer_), goalText_(goalFont_), goalMusicSound_(goalMusicBuffer_), iconOptionsSprite_(iconOptionsTexture_), 
+        argSprite_(argTexture_),
+        braSprite_(braTexture_),
+        fraSprite_(fraTexture_),
+        gerSprite_(gerTexture_),
+        nedSprite_(nedTexture_),
+        espSprite_(espTexture_),
+        engSprite_(engTexture_),
+        usaSprite_(usaTexture_),
+        uruSprite_(uruTexture_),
+        sweSprite_(sweTexture_),
+        rusSprite_(rusTexture_),
+        korSprite_(korTexture_),
+        jpnSprite_(jpnTexture_),
+        irnSprite_(irnTexture_),
+        colSprite_(colTexture_),
+        chnSprite_(chnTexture_),
+        chiSprite_(chiTexture_),
+        vieSprite_(vieTexture_),
+        porSprite_(porTexture_),
+        itaSprite_(itaTexture_) {
     // 1. Cố gắng load file ảnh
     // Đảm bảo bạn đã tạo thư mục 'assets' và bỏ file ảnh vào đó!
     if (!fieldTexture_.loadFromFile("assets/field_5.png")) {
@@ -91,54 +111,54 @@ namespace SoccerPool {
         //ballSprite_.setScale({ scaleX, scaleY });
     }
 
-    // --- 3. LOAD ẢNH ĐỘI 1 ---
-    if (!team1Texture_.loadFromFile("assets/team1.png")) {
-        std::cerr << "LOI: Khong load duoc assets/team1.png" << std::endl;
-        isTeam1Loaded_ = false;
-    }
-    else {
-        isTeam1Loaded_ = true;
-        team1Texture_.setSmooth(true);
-        sf::Vector2u t1Size = team1Texture_.getSize();
+    //// --- 3. LOAD ẢNH ĐỘI 1 ---
+    //if (!team1Texture_.loadFromFile("assets/team1.png")) {
+    //    std::cerr << "LOI: Khong load duoc assets/team1.png" << std::endl;
+    //    isTeam1Loaded_ = false;
+    //}
+    //else {
+    //    isTeam1Loaded_ = true;
+    //    team1Texture_.setSmooth(true);
+    //    sf::Vector2u t1Size = team1Texture_.getSize();
 
-        // Cập nhật vùng hiển thị (Bắt buộc ở SFML 3)
-        team1Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(t1Size.x), static_cast<int>(t1Size.y) }));
+    //    // Cập nhật vùng hiển thị (Bắt buộc ở SFML 3)
+    //    team1Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(t1Size.x), static_cast<int>(t1Size.y) }));
 
-        // Đặt tâm về giữa ảnh
-        team1Sprite_.setOrigin({ static_cast<float>(t1Size.x) / 2.f, static_cast<float>(t1Size.y) / 2.f });
+    //    // Đặt tâm về giữa ảnh
+    //    team1Sprite_.setOrigin({ static_cast<float>(t1Size.x) / 2.f, static_cast<float>(t1Size.y) / 2.f });
 
-        // Tính tỷ lệ scale (Đường kính = 2 * PIECE_RADIUS)
-        float scale = (2.f * PIECE_RADIUS) / static_cast<float>(t1Size.x);
-        // (Giả sử ảnh vuông nên scale X Y bằng nhau)
-        team1Sprite_.setScale({ scale, scale });
-    }
+    //    // Tính tỷ lệ scale (Đường kính = 2 * PIECE_RADIUS)
+    //    float scale = (2.f * PIECE_RADIUS) / static_cast<float>(t1Size.x);
+    //    // (Giả sử ảnh vuông nên scale X Y bằng nhau)
+    //    team1Sprite_.setScale({ scale, scale });
+    //}
 
-    // --- 4. LOAD ẢNH ĐỘI 2 ---
-    if (!team2Texture_.loadFromFile("assets/team2.png")) {
-        std::cerr << "LOI: Khong load duoc assets/team2.png" << std::endl;
-        isTeam2Loaded_ = false;
-    }
-    else {
-        isTeam2Loaded_ = true;
-        team2Texture_.setSmooth(true);
-        sf::Vector2u t2Size = team2Texture_.getSize();
+    //// --- 4. LOAD ẢNH ĐỘI 2 ---
+    //if (!team2Texture_.loadFromFile("assets/team2.png")) {
+    //    std::cerr << "LOI: Khong load duoc assets/team2.png" << std::endl;
+    //    isTeam2Loaded_ = false;
+    //}
+    //else {
+    //    isTeam2Loaded_ = true;
+    //    team2Texture_.setSmooth(true);
+    //    sf::Vector2u t2Size = team2Texture_.getSize();
 
-        // Cập nhật vùng hiển thị
-        team2Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(t2Size.x), static_cast<int>(t2Size.y) }));
+    //    // Cập nhật vùng hiển thị
+    //    team2Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(t2Size.x), static_cast<int>(t2Size.y) }));
 
-        // Đặt tâm về giữa ảnh
-        team2Sprite_.setOrigin({ static_cast<float>(t2Size.x) / 2.f, static_cast<float>(t2Size.y) / 2.f });
+    //    // Đặt tâm về giữa ảnh
+    //    team2Sprite_.setOrigin({ static_cast<float>(t2Size.x) / 2.f, static_cast<float>(t2Size.y) / 2.f });
 
-        // Tính tỷ lệ scale
-        float scale = (2.f * PIECE_RADIUS) / static_cast<float>(t2Size.x);
-        team2Sprite_.setScale({ scale, scale });
-    }
+    //    // Tính tỷ lệ scale
+    //    float scale = (2.f * PIECE_RADIUS) / static_cast<float>(t2Size.x);
+    //    team2Sprite_.setScale({ scale, scale });
+    //}
 
     // --- LOAD ẢNH BẢNG TỈ SỐ (image_5.png) ---
     // Đảm bảo bạn đã copy ảnh image_5.png vào thư mục assets/ và đổi tên thành ti_so_xoa_ti_so.png
     // --- LOAD ẢNH BẢNG TỈ SỐ ---
-    if (!sbTexture_.loadFromFile("assets/ti_so_xoa_ti_so.png")) {
-        std::cerr << "LOI: Khong load duoc assets/ti_so_xoa_ti_so.png" << std::endl;
+    if (!sbTexture_.loadFromFile("assets/bang_ti_so_xoa_phong.png")) {
+        std::cerr << "LOI: Khong load duoc assets/bang_ti_so_xoa_phong.png" << std::endl;
         isSbLoaded_ = false;
     }
     else {
@@ -244,6 +264,67 @@ namespace SoccerPool {
 	}
     if (!iconOptionsTexture_.loadFromFile("assets/icon_options.png")) {
         std::cerr << "Khong the load file: assets/icon_options.png" << std::endl;
+	}
+
+    if (!argTexture_.loadFromFile("assets/team/argentina.png")) {
+        std::cerr << "Khong the load file: assets/team/argentina.png" << std::endl;
+	}
+    if (!braTexture_.loadFromFile("assets/team/brazil.png")) {
+        std::cerr << "Khong the load file: assets/team/brazil.png" << std::endl;
+    }
+    if (!fraTexture_.loadFromFile("assets/team/france.png")) {
+        std::cerr << "Khong the load file: assets/team/france.png" << std::endl;
+	}
+    if (!gerTexture_.loadFromFile("assets/team/germany.png")) {
+        std::cerr << "Khong the load file: assets/team/germany.png" << std::endl;
+    }
+    if (!nedTexture_.loadFromFile("assets/team/netherlands.png")) {
+        std::cerr << "Khong the load file: assets/team/netherlands.png" << std::endl;
+	}
+    if (!espTexture_.loadFromFile("assets/team/spain.png")) {
+        std::cerr << "Khong the load file: assets/team/spain.png" << std::endl;
+	}
+    if (!engTexture_.loadFromFile("assets/team/england.png")) {
+        std::cerr << "Khong the load file: assets/team/england.png" << std::endl;
+	}
+    if (!usaTexture_.loadFromFile("assets/team/usa.png")) {
+        std::cerr << "Khong the load file: assets/team/usa.png" << std::endl;
+    }
+    if (!uruTexture_.loadFromFile("assets/team/uruguay.png")) {
+        std::cerr << "Khong the load file: assets/team/uruguay.png" << std::endl;
+	}
+    if (!sweTexture_.loadFromFile("assets/team/sweden.png")) {
+        std::cerr << "Khong the load file: assets/team/sweden.png" << std::endl;
+	}
+    if (!rusTexture_.loadFromFile("assets/team/russia.png")) {
+        std::cerr << "Khong the load file: assets/team/russia.png" << std::endl;
+    }
+    if (!korTexture_.loadFromFile("assets/team/korea.png")) {
+        std::cerr << "Khong the load file: assets/team/korea.png" << std::endl;
+    }
+    if (!jpnTexture_.loadFromFile("assets/team/japan.png")) {
+        std::cerr << "Khong the load file: assets/team/japan.png" << std::endl;
+	}
+    if (!irnTexture_.loadFromFile("assets/team/iran.png")) {
+        std::cerr << "Khong the load file: assets/team/iran.png" << std::endl;
+	}
+    if (!colTexture_.loadFromFile("assets/team/colombia.png")) {
+        std::cerr << "Khong the load file: assets/team/colombia.png" << std::endl;
+    }
+    if (!chnTexture_.loadFromFile("assets/team/china.png")) {
+        std::cerr << "Khong the load file: assets/team/china.png" << std::endl;
+	}
+    if (!chiTexture_.loadFromFile("assets/team/chile.png")) {
+        std::cerr << "Khong the load file: assets/team/chile.png" << std::endl;
+    }
+    if (!vieTexture_.loadFromFile("assets/team/vietnam.png")) {
+        std::cerr << "Khong the load file: assets/team/vietnam.png" << std::endl;
+    }
+    if (!porTexture_.loadFromFile("assets/team/portugal.png")) {
+        std::cerr << "Khong the load file: assets/team/portugal.png" << std::endl;
+    }
+    if (!itaTexture_.loadFromFile("assets/team/italy.png")) {
+        std::cerr << "Khong the load file: assets/team/italy.png" << std::endl;
 	}
     //btnGrayTexture_.loadFromFile("assets/btn_gray.png"); // Chỉ có hình chữ nhật bo góc xám
     //iconPlayTexture_.loadFromFile("assets/icon_play.png");
@@ -611,6 +692,108 @@ namespace SoccerPool {
     goalText_.setOrigin({ textBounds.position.x + textBounds.size.x / 2.f,
                           textBounds.position.y + textBounds.size.y / 2.f });
     goalText_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f });
+
+
+    teams_ = {
+        {0, "Argentina", "ARG", &argSprite_}, {1, "Brazil", "BRA", &braSprite_},
+        {2, "France", "FRA", &fraSprite_}, {3, "Germany", "GER", &gerSprite_},
+        {4, "Netherlands", "NED", &nedSprite_}, {5, "Spain", "ESP", &espSprite_},
+        {6, "England", "ENG", &engSprite_}, {7, "USA", "USA", &usaSprite_},
+        {8, "Uruguay", "URU", &uruSprite_}, {9, "Sweden", "SWE", &sweSprite_},
+        {10, "Russia", "RUS", &rusSprite_}, {11, "South Korea", "KOR", &korSprite_},
+        {12, "Japan", "JPN", &jpnSprite_}, {13, "Iran", "IRN", &irnSprite_},
+        {14, "Colombia", "COL", &colSprite_}, {15, "China", "CHN", &chnSprite_},
+        {16, "Chile", "CHI", &chiSprite_}, {17, "Vietnam", "VIE", &vieSprite_},
+        {18, "Portugal", "POR", &porSprite_}, {19, "Italy", "ITA", &itaSprite_}
+    };
+
+    // Cập nhật lại kích thước hiển thị (TextureRect) cho toàn bộ 20 logo đội bóng
+    // Cập nhật lại kích thước hiển thị (TextureRect) cho toàn bộ 20 logo đội bóng
+    for (auto& team : teams_) {
+        const sf::Texture& tex = team.sprite->getTexture();
+        sf::Vector2u texSize = tex.getSize();
+
+        if (texSize.x > 0 && texSize.y > 0) {
+            team.sprite->setTextureRect(sf::IntRect({ 0, 0 }, { (int)texSize.x, (int)texSize.y }));
+            team.sprite->setOrigin({ static_cast<float>(texSize.x) / 2.f, static_cast<float>(texSize.y) / 2.f });
+
+            // ---> FIX LỖI LOGO BÉ KHI VÀO TRẬN TẠI ĐÂY <---
+            // Tính tỷ lệ scale sao cho đường kính ảnh vừa khít với đường kính vật lý của cầu thủ (2 * PIECE_RADIUS)
+            float pieceScale = (2.f * PIECE_RADIUS) / static_cast<float>(texSize.x);
+            
+            // Gán tỷ lệ này làm mặc định cho tất cả các Sprite của các đội
+            team.sprite->setScale({ pieceScale, pieceScale });
+        }
+    }
+}
+
+void Game_Render::loadTeamLogos() {
+    if (!state_) return;
+
+    std::string t1Abbr = state_->getTeamAbbr(Team::Team1);
+    std::string t2Abbr = state_->getTeamAbbr(Team::Team2);
+
+    // Hệ số bù đắp (Compensation Factor) cho các ảnh 1920x1080 có logo nhỏ ở giữa
+    // Bạn có thể chỉnh con số này (ví dụ 6.5f, 7.0f) để vừa với vòng hào quang
+    float compFactor = 2.0f;
+
+    // --- Xử lý Đội 1 ---
+    bool found1 = false;
+    for (const auto& team : teams_) {
+        if (team.abbr == t1Abbr) {
+            team1Texture_ = team.sprite->getTexture();
+            found1 = true;
+            break;
+        }
+    }
+
+    if (found1) {
+        isTeam1Loaded_ = true;
+        team1Texture_.setSmooth(true);
+        sf::Vector2u t1Size = team1Texture_.getSize();
+
+        team1Sprite_.setTexture(team1Texture_);
+        team1Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(t1Size.x), static_cast<int>(t1Size.y) }));
+        team1Sprite_.setOrigin({ static_cast<float>(t1Size.x) / 2.f, static_cast<float>(t1Size.y) / 2.f });
+
+        // ---> FIX LỖI LOGO BÉ: ÁP DỤNG HỆ SỐ BÙ TRỪ VÀO ĐÂY <---
+        float baseScale1 = (2.f * PIECE_RADIUS) / static_cast<float>(t1Size.y);
+        float finalScale1 = baseScale1 * compFactor;
+        team1Sprite_.setScale({ finalScale1, finalScale1 });
+    }
+    else {
+        std::cerr << "Khong tim thay logo cho doi 1: " << t1Abbr << std::endl;
+        isTeam1Loaded_ = false;
+    }
+
+    // --- Xử lý Đội 2 ---
+    bool found2 = false;
+    for (const auto& team : teams_) {
+        if (team.abbr == t2Abbr) {
+            team2Texture_ = team.sprite->getTexture();
+            found2 = true;
+            break;
+        }
+    }
+
+    if (found2) {
+        isTeam2Loaded_ = true;
+        team2Texture_.setSmooth(true);
+        sf::Vector2u t2Size = team2Texture_.getSize();
+
+        team2Sprite_.setTexture(team2Texture_);
+        team2Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(t2Size.x), static_cast<int>(t2Size.y) }));
+        team2Sprite_.setOrigin({ static_cast<float>(t2Size.x) / 2.f, static_cast<float>(t2Size.y) / 2.f });
+
+        // ---> FIX LỖI LOGO BÉ: ÁP DỤNG HỆ SỐ BÙ TRỪ VÀO ĐÂY <---
+        float baseScale2 = (2.f * PIECE_RADIUS) / static_cast<float>(t2Size.y);
+        float finalScale2 = baseScale2 * compFactor;
+        team2Sprite_.setScale({ finalScale2, finalScale2 });
+    }
+    else {
+        std::cerr << "Khong tim thay logo cho doi 2: " << t2Abbr << std::endl;
+        isTeam2Loaded_ = false;
+    }
 }
 
 void Game_Render::updateTransform() {
@@ -923,6 +1106,18 @@ void Game_Render::drawUI(sf::RenderWindow& window) {
     text.setString(std::to_string(state_->getScore2()));
     centerTextAt(text, sbCenter + SB_OFFSET_SCORE2);
     window.draw(text);
+
+    // In tên đội 1 (Bên trái tỉ số)
+    sf::Text t1Abbr(goalFont_, state_->getTeamAbbr(Team::Team1), 36);
+    t1Abbr.setFillColor(sf::Color::Red);
+    centerTextAt(t1Abbr, sbCenter + sf::Vector2f(-85.f, 0.f)); // Lệch sang trái
+    window.draw(t1Abbr);
+
+    // In tên đội 2 (Bên phải tỉ số)
+    sf::Text t2Abbr(goalFont_, state_->getTeamAbbr(Team::Team2), 36);
+    t2Abbr.setFillColor(sf::Color::Blue);
+    centerTextAt(t2Abbr, sbCenter + sf::Vector2f(85.f, 0.f)); // Lệch sang phải
+    window.draw(t2Abbr);
 
     // --- VẼ ĐẾM NGƯỢC ĐỊNH DẠNG 00:30 ---
     float timeLeft = state_->getTurnTimer();
@@ -1593,6 +1788,7 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
     // Vẽ mũi tên chuyển trang và nút Start
     if (currentLineupPage_ > 0) {
         sf::FloatRect prevRect({ 40.f, 210.f }, { 80.f, 40.f });
+        arrowLeftSprite_.setPosition({ 80.f, 230.f });
         float sArrow = 200.f / arrowLeftTexture_.getSize().x;
         applyHoverEffect(arrowLeftSprite_, prevRect, mPos, sArrow);
         window.draw(arrowLeftSprite_);
@@ -1600,6 +1796,7 @@ void Game_Render::drawSelectLineup(sf::RenderWindow& window) {
 
     if ((currentLineupPage_ + 1) * 2 < lineups_.size()) {
         sf::FloatRect nextRect({ 885.f, 210.f }, { 80.f, 40.f });
+        arrowRightSprite_.setPosition({ 925.f, 230.f });
         float sArrow = 200.f / arrowRightTexture_.getSize().x;
         applyHoverEffect(arrowRightSprite_, nextRect, mPos, sArrow);
         window.draw(arrowRightSprite_);
@@ -1670,6 +1867,93 @@ void Game_Render::applyHoverEffect(sf::Sprite& sprite, sf::FloatRect bounds, sf:
         sprite.setScale({ baseScale, baseScale }); // Về bình thường
         sprite.setColor(sf::Color(230, 230, 230)); // Hơi tối nhẹ
     }
+}
+
+void Game_Render::drawSelectTeam(sf::RenderWindow& window) {
+    window.draw(menuBgSprite_);
+    sf::Vector2f mPos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
+    sf::Font titleFont;
+    titleFont.openFromFile("assets/font/GulfsDisplay-SemiCondensed.ttf");
+
+    sf::Text titleText(titleFont, "Pick Team " + std::to_string(pickingTeamFor_), 80);
+    titleText.setFillColor(sf::Color::Black);
+    sf::FloatRect textBounds = titleText.getLocalBounds();
+    titleText.setOrigin({ textBounds.position.x + textBounds.size.x / 2.f, textBounds.position.y + textBounds.size.y / 2.f });
+    titleText.setPosition({ FIELD_WIDTH / 2.f, 60.f });
+    window.draw(titleText);
+
+    // Vẽ lưới 2x2 (4 đội 1 trang)
+    int startIdx = currentTeamPage_ * 4;
+    for (int i = 0; i < 4 && (startIdx + i) < teams_.size(); ++i) {
+        auto& team = teams_[startIdx + i];
+
+        int row = i / 2;
+        int col = i % 2;
+        float xPos = 350.f + col * 300.f;
+        float yPos = 160.f + row * 160.f;
+
+        sf::FloatRect cardRect({ xPos - 100.f, yPos - 60.f }, { 200.f, 150.f });
+
+        sf::Sprite* spr = team.sprite;
+        spr->setPosition({ xPos, yPos });
+        spr->setOrigin({ spr->getTexture().getSize().x / 2.f, spr->getTexture().getSize().y / 2.f });
+
+        float baseScale = 280.f / spr->getTexture().getSize().x; // Ép logo về 280px
+
+        if (team.id == selectedTeamId_) {
+            spr->setScale({ baseScale, baseScale });
+            spr->setColor(sf::Color::White);
+            // Vẽ viền vàng xác nhận
+            sf::RectangleShape highlight({ 160.f, 120.f });
+            highlight.setPosition({ xPos - 80.f, yPos - 45.f });
+            highlight.setFillColor(sf::Color::Transparent);
+            highlight.setOutlineColor(sf::Color::Yellow);
+            highlight.setOutlineThickness(4.f);
+            window.draw(highlight);
+        }
+        else {
+            applyHoverEffect(*spr, cardRect, mPos, baseScale);
+        }
+        window.draw(*spr);
+
+        // Vẽ tên đội ngay bên dưới logo
+        sf::Text nameText(titleFont, team.name, 28);
+        nameText.setFillColor(sf::Color::White);
+        sf::FloatRect nBounds = nameText.getLocalBounds();
+        nameText.setOrigin({ nBounds.position.x + nBounds.size.x / 2.f, nBounds.position.y + nBounds.size.y / 2.f });
+        nameText.setPosition({ xPos, yPos + 50.f });
+        window.draw(nameText);
+    }
+
+    // Nút Next/Start
+    sf::FloatRect btnRect({ 420.f, 425.f }, { 160.f, 50.f });
+    sf::Sprite* currentBtn = &nextBtnSprite_;
+    float baseScaleBtn = 400.f / nextBtnTexture_.getSize().x;
+    applyHoverEffect(*currentBtn, btnRect, mPos, baseScaleBtn);
+    window.draw(*currentBtn);
+
+
+    // Mũi tên chuyển trang
+    if (currentTeamPage_ > 0) {
+        sf::FloatRect prevRect({ 40.f, 230.f }, { 80.f, 40.f });
+        arrowLeftSprite_.setPosition({ 80.f, 250.f });
+        float sArrow = 200.f / arrowLeftTexture_.getSize().x;
+        applyHoverEffect(arrowLeftSprite_, prevRect, mPos, sArrow);
+        window.draw(arrowLeftSprite_);
+    }
+    if ((currentTeamPage_ + 1) * 4 < teams_.size()) {
+        sf::FloatRect nextRect({ 885.f, 230.f }, { 80.f, 40.f });
+        arrowRightSprite_.setPosition({ 925.f, 250.f });
+        float sArrow = 200.f / arrowRightTexture_.getSize().x;
+        applyHoverEffect(arrowRightSprite_, nextRect, mPos, sArrow);
+        window.draw(arrowRightSprite_);
+    }
+
+    // Nút Back
+    float sRet = 180.f / iconReturnTexture_.getSize().x;
+    applyHoverEffect(iconReturnSprite_, { {30.f, 30.f}, {40.f, 40.f} }, mPos, sRet);
+    window.draw(iconReturnSprite_);
 }
 
 void Game_Render::draw(sf::RenderWindow& window) {
@@ -1795,6 +2079,12 @@ void Game_Render::draw(sf::RenderWindow& window) {
         sf::View setupView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
         window.setView(setupView);
         drawSelectMode(window);
+        return;
+    }
+    else if (current == GamePhase::PickTeam) {
+        sf::View teamView(sf::FloatRect({ 0.f, 0.f }, { FIELD_WIDTH, FIELD_HEIGHT }));
+        window.setView(teamView);
+        drawSelectTeam(window);
         return;
     }
     else if (current == GamePhase::PickLineup) {

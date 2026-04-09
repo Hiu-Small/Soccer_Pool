@@ -95,6 +95,28 @@ public:
     void resetGameOverAnimation() { gameOverAnimTimer_ = 0.f; }
     void updateGameOverAnimation(float dt) { gameOverAnimTimer_ += dt; }
 
+    // Các hàm Get/Set cho phần chọn đội
+    int getCurrentTeamPage() const { return currentTeamPage_; }
+    void setCurrentTeamPage(int page) { currentTeamPage_ = page; }
+    void nextTeamPage() { if ((currentTeamPage_ + 1) * 4 < teams_.size()) currentTeamPage_++; }
+    void prevTeamPage() { if (currentTeamPage_ > 0) currentTeamPage_--; }
+
+    void setSelectedTeamId(int id) { selectedTeamId_ = id; }
+    int getSelectedTeamId() const { return selectedTeamId_; }
+    int getTeamCount() const { return teams_.size(); }
+
+    void setPickingTeamFor(int teamNum) { pickingTeamFor_ = teamNum; }
+    int getPickingTeamFor() const { return pickingTeamFor_; }
+
+    std::string getTeamAbbrById(int id) {
+        for (const auto& t : teams_) {
+            if (t.id == id) return t.abbr;
+        }
+        return "COM";
+    }
+
+    void loadTeamLogos();
+
 private:
     void drawField(sf::RenderWindow& window);
     void drawGoals(sf::RenderWindow& window);
@@ -113,6 +135,8 @@ private:
     void applyHoverEffect(sf::Sprite& sprite, sf::FloatRect bounds, sf::Vector2f mPos, float baseScale);
 
     void drawOptionsMenu(sf::RenderWindow& window);
+
+    void drawSelectTeam(sf::RenderWindow& window);
 
     GameState* state_ = nullptr;
     unsigned viewWidth_ = 1000;
@@ -274,6 +298,60 @@ private:
     void drawGoalAnimation(sf::RenderWindow& window);
 
     float gameOverAnimTimer_ = 0.f; // ---> THÊM DÒNG NÀY
+
+	sf::Texture argTexture_;
+	sf::Sprite argSprite_;
+    sf::Texture braTexture_;
+    sf::Sprite braSprite_;
+    sf::Texture fraTexture_;
+    sf::Sprite fraSprite_;
+    sf::Texture gerTexture_;
+    sf::Sprite gerSprite_;
+    sf::Texture nedTexture_;
+    sf::Sprite nedSprite_;
+    sf::Texture espTexture_;
+    sf::Sprite espSprite_;
+    sf::Texture engTexture_;
+    sf::Sprite engSprite_;
+    sf::Texture usaTexture_;
+    sf::Sprite usaSprite_;
+    sf::Texture uruTexture_;
+    sf::Sprite uruSprite_;
+    sf::Texture sweTexture_;
+    sf::Sprite sweSprite_;
+    sf::Texture rusTexture_;
+    sf::Sprite rusSprite_;
+    sf::Texture korTexture_;
+    sf::Sprite korSprite_;
+    sf::Texture jpnTexture_;
+    sf::Sprite jpnSprite_;
+    sf::Texture irnTexture_;
+    sf::Sprite irnSprite_;
+    sf::Texture colTexture_;
+    sf::Sprite colSprite_;
+    sf::Texture chnTexture_;
+    sf::Sprite chnSprite_;
+    sf::Texture chiTexture_;
+    sf::Sprite chiSprite_;
+    sf::Texture vieTexture_;
+    sf::Sprite vieSprite_;
+    sf::Texture porTexture_;
+    sf::Sprite porSprite_;
+    sf::Texture itaTexture_;
+    sf::Sprite itaSprite_;
+
+    struct TeamOption {
+        int id;
+        std::string name;
+        std::string abbr;
+        sf::Sprite* sprite;
+    };
+
+    std::vector<TeamOption> teams_;
+    int currentTeamPage_ = 0;
+    int selectedTeamId_ = -1;
+    int pickingTeamFor_ = 1;    
+
 
     // Font dành riêng cho Menu (nên dùng font dày)
     sf::Font menuFont_;
