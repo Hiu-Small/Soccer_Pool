@@ -1901,7 +1901,15 @@ void Game_Render::drawSelectTeam(sf::RenderWindow& window) {
 
         float baseScale = 280.f / spr->getTexture().getSize().x; // Ép logo về 280px
 
-        if (team.id == selectedTeamId_) {
+        // ---> THÊM BIẾN KIỂM TRA ĐỘI ĐÃ BỊ CHỌN CHƯA <---
+        bool isTaken = (pickingTeamFor_ == 2 && team.abbr == state_->getTeamAbbr(Team::Team1));
+
+        if (isTaken) {
+            // NẾU ĐÃ BỊ LẤY BỞI P1: Làm mờ xám đi và không cho Hover
+            spr->setScale({ baseScale, baseScale });
+            spr->setColor(sf::Color(150, 150, 150, 160)); // Màu xám, độ mờ 100
+        }
+        else if (team.id == selectedTeamId_) {
             spr->setScale({ baseScale, baseScale });
             spr->setColor(sf::Color::White);
             // Vẽ viền vàng xác nhận
@@ -1919,7 +1927,7 @@ void Game_Render::drawSelectTeam(sf::RenderWindow& window) {
 
         // Vẽ tên đội ngay bên dưới logo
         sf::Text nameText(titleFont, team.name, 28);
-        nameText.setFillColor(sf::Color::White);
+        nameText.setFillColor(isTaken ? sf::Color(150, 150, 150, 160) : sf::Color::White);
         sf::FloatRect nBounds = nameText.getLocalBounds();
         nameText.setOrigin({ nBounds.position.x + nBounds.size.x / 2.f, nBounds.position.y + nBounds.size.y / 2.f });
         nameText.setPosition({ xPos, yPos + 50.f });

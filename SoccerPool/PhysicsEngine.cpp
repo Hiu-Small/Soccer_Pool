@@ -295,7 +295,7 @@ namespace SoccerPool {
 
         sf::Vector2f outV1, outV2;
         elasticCollision2D(b.getPosition(), v1, BALL_MASS, p.getPosition(), v2, PIECE_MASS, outV1, outV2);
-
+        
         b.setVelocity(outV1);
         p.setVelocity(outV2);
 
@@ -340,7 +340,7 @@ namespace SoccerPool {
 
     // HÀM CHUNG ĐỂ XỬ LÝ VA CHẠM VỚI CỘT DỌC HÌNH TRÒN
     void PhysicsEngine::resolveCircleCollision(sf::Vector2f& pos, sf::Vector2f& vel, float radius, sf::Vector2f postPos, float restitution) {
-        float postRadius = 3.0f; // Bán kính cột dọc (rất nhỏ để làm mượt góc vuông)
+        float postRadius = 1.0f; // Bán kính cột dọc (rất nhỏ để làm mượt góc vuông)
 
         if (circleCircle(pos, radius, postPos, postRadius)) {
             sf::Vector2f d = pos - postPos;
@@ -395,7 +395,7 @@ namespace SoccerPool {
         resolveCircleCollision(bPos, bVel, ballCollisionRadius, postL_Bot, bRestitution);
         resolveCircleCollision(bPos, bVel, ballCollisionRadius, postR_Top, bRestitution);
         resolveCircleCollision(bPos, bVel, ballCollisionRadius, postR_Bot, bRestitution);
-        
+       
         ball_->setPosition(bPos);
         ball_->setVelocity(bVel);
     }
