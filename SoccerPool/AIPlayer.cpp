@@ -1,16 +1,3 @@
-// ====================================================================
-//  AIPlayer.cpp  –  AI Công Thủ Toàn Diện v2 (High-Speed Edition)
-//
-//  Nguyên tắc thiết kế:
-//   1. TUYỆT ĐỐI không phản lưới nhà.
-//   2. Sau khi bóng dừng, bóng KHÔNG được đối diện nguy hiểm gôn nhà.
-//   3. Thủ môn CHỈ tấn công khi simulation xác nhận 100% ghi bàn.
-//   4. Bóng nguy hiểm → ưu tiên phá bóng lên phía địch.
-//   5. Kickoff → không sút thẳng vào gôn địch.
-//   6. [MỚI] Bóng sau lưng cầu thủ → KHÔNG đá về phía gôn nhà.
-//   7. [MỚI] Ưu tiên cú sút trực tiếp vào gôn với lực tối đa.
-//   8. [MỚI] AI ra quyết định nhanh → nhịp trận đấu cao.
-// ====================================================================
 #include "AIPlayer.h"
 #include "Field.h"
 #include <cmath>

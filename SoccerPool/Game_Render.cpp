@@ -92,67 +92,7 @@ namespace SoccerPool {
         float scaleY = targetDiameter / static_cast<float>(ballFrameSize_.y);
 
         ballSprite_.setScale({ scaleX, scaleY });
-
-        // --- THÊM DÒNG QUAN TRỌNG NÀY ---
-        // Nếu thiếu dòng này, Sprite sẽ có kích thước 0x0 và không hiện gì cả
-        //ballSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(texSize.x), static_cast<int>(texSize.y) }));
-
-        //// A. ĐẶT TÂM VỀ GIỮA ẢNH (Quan trọng!)
-        //// Để tọa độ vật lý (ở tâm bóng) trùng với tâm của bức ảnh
-        //ballSprite_.setOrigin({ static_cast<float>(texSize.x) / 2.f, static_cast<float>(texSize.y) / 2.f });
-
-        //// B. TÍNH TỶ LỆ CO GIÃN (Scale)
-        //// Đường kính mong muốn = 2 * Bán kính (BALL_RADIUS)
-        //// Tỷ lệ = Đường kính mong muốn / Kích thước ảnh thật
-        //float targetDiameter = 2.f * BALL_RADIUS;
-        //float scaleX = targetDiameter / static_cast<float>(texSize.x);
-        //float scaleY = targetDiameter / static_cast<float>(texSize.y);
-
-        //ballSprite_.setScale({ scaleX, scaleY });
     }
-
-    //// --- 3. LOAD ẢNH ĐỘI 1 ---
-    //if (!team1Texture_.loadFromFile("assets/team1.png")) {
-    //    std::cerr << "LOI: Khong load duoc assets/team1.png" << std::endl;
-    //    isTeam1Loaded_ = false;
-    //}
-    //else {
-    //    isTeam1Loaded_ = true;
-    //    team1Texture_.setSmooth(true);
-    //    sf::Vector2u t1Size = team1Texture_.getSize();
-
-    //    // Cập nhật vùng hiển thị (Bắt buộc ở SFML 3)
-    //    team1Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(t1Size.x), static_cast<int>(t1Size.y) }));
-
-    //    // Đặt tâm về giữa ảnh
-    //    team1Sprite_.setOrigin({ static_cast<float>(t1Size.x) / 2.f, static_cast<float>(t1Size.y) / 2.f });
-
-    //    // Tính tỷ lệ scale (Đường kính = 2 * PIECE_RADIUS)
-    //    float scale = (2.f * PIECE_RADIUS) / static_cast<float>(t1Size.x);
-    //    // (Giả sử ảnh vuông nên scale X Y bằng nhau)
-    //    team1Sprite_.setScale({ scale, scale });
-    //}
-
-    //// --- 4. LOAD ẢNH ĐỘI 2 ---
-    //if (!team2Texture_.loadFromFile("assets/team2.png")) {
-    //    std::cerr << "LOI: Khong load duoc assets/team2.png" << std::endl;
-    //    isTeam2Loaded_ = false;
-    //}
-    //else {
-    //    isTeam2Loaded_ = true;
-    //    team2Texture_.setSmooth(true);
-    //    sf::Vector2u t2Size = team2Texture_.getSize();
-
-    //    // Cập nhật vùng hiển thị
-    //    team2Sprite_.setTextureRect(sf::IntRect({ 0, 0 }, { static_cast<int>(t2Size.x), static_cast<int>(t2Size.y) }));
-
-    //    // Đặt tâm về giữa ảnh
-    //    team2Sprite_.setOrigin({ static_cast<float>(t2Size.x) / 2.f, static_cast<float>(t2Size.y) / 2.f });
-
-    //    // Tính tỷ lệ scale
-    //    float scale = (2.f * PIECE_RADIUS) / static_cast<float>(t2Size.x);
-    //    team2Sprite_.setScale({ scale, scale });
-    //}
 
     // --- LOAD ẢNH BẢNG TỈ SỐ (image_5.png) ---
     // Đảm bảo bạn đã copy ảnh image_5.png vào thư mục assets/ và đổi tên thành ti_so_xoa_ti_so.png
@@ -326,17 +266,6 @@ namespace SoccerPool {
     if (!itaTexture_.loadFromFile("assets/team/italy.png")) {
         std::cerr << "Khong the load file: assets/team/italy.png" << std::endl;
 	}
-    //btnGrayTexture_.loadFromFile("assets/btn_gray.png"); // Chỉ có hình chữ nhật bo góc xám
-    //iconPlayTexture_.loadFromFile("assets/icon_play.png");
-    //iconGearTexture_.loadFromFile("assets/icon_gear.png");
-    //iconQuitTexture_.loadFromFile("assets/icon_quit.png");
-    //menuFont_.loadFromFile("assets/fonts/arial_bold.ttf");
-
-    //doan nay ko can
- //   menuBgSprite_.setTexture(menuBgTexture_);
- //   ball8Sprite_.setTexture(ball8Texture_);
- //   goalMenuSprite_.setTexture(goalMenuTexture_);
-	//ballMenuSprite_.setTexture(ballMenuTexture_);
 
     // Cập nhật vùng hiển thị (TextureRect) để đảm bảo Sprite có kích thước
     menuBgSprite_.setTextureRect(sf::IntRect({ 0, 0 }, { (int)menuBgTexture_.getSize().x, (int)menuBgTexture_.getSize().y }));
@@ -563,20 +492,6 @@ namespace SoccerPool {
 	msbQuitSprite_.setOrigin({ msbQuitSize.x / 2.f, msbQuitSize.y / 2.f });
 	msbQuitSprite_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f });
 
-	//sf::Vector2u slideBarSize = slideBarTexture_.getSize();
-	//float targetSlideBarWidth = 270.f;
-	//float sSlideBar = targetSlideBarWidth / static_cast<float>(slideBarSize.x);
-	//slideBarSprite_.setScale({ sSlideBar, sSlideBar });
-	//slideBarSprite_.setOrigin({ slideBarSize.x / 2.f, slideBarSize.y / 2.f });
-	//slideBarSprite_.setPosition({ FIELD_WIDTH / 2.f + 10.f, FIELD_HEIGHT / 2.f - 10.f });
-
-	//sf::Vector2u slideNodeSize = slideNodeTexture_.getSize();
-	//float targetSlideNodeWidth = 140.f;
-	//float sSlideNode = targetSlideNodeWidth / static_cast<float>(slideNodeSize.x);
-	//slideNodeSprite_.setScale({ sSlideNode, sSlideNode });
-	//slideNodeSprite_.setOrigin({ slideNodeSize.x / 2.f, slideNodeSize.y / 2.f });
-	//slideNodeSprite_.setPosition({ FIELD_WIDTH / 2.f, FIELD_HEIGHT / 2.f - 10.f });
-
 	sf::Vector2u slideBarSoundSize = slideBarSoundTexture_.getSize();
 	float targetSlideBarSoundWidth = 270.f;
 	float sSlideBarSound = targetSlideBarSoundWidth / static_cast<float>(slideBarSoundSize.x);
@@ -797,40 +712,6 @@ void Game_Render::loadTeamLogos() {
 }
 
 void Game_Render::updateTransform() {
-    //scaleX_ = static_cast<float>(viewWidth_) / FIELD_WIDTH;
-    //scaleY_ = static_cast<float>(viewHeight_) / FIELD_HEIGHT;
-
-    //float scale = (scaleX_ < scaleY_) ? scaleX_ : scaleY_;
-    //scaleX_ = scale;
-    //scaleY_ = scale;
-    //offsetX_ = (viewWidth_ - FIELD_WIDTH * scale) / 2.f;
-    //offsetY_ = (viewHeight_ - FIELD_HEIGHT * scale) / 2.f;
-
-    //offsetX_ = 0.f;
-    //offsetY_ = 0.f;
-
-    // 1. Tính toán tỷ lệ khung hình (Aspect Ratio) mong muốn (ví dụ 1000:600)
-    //float targetAspectRatio = 1000.f / 600.f;
-    //float windowAspectRatio = static_cast<float>(viewWidth_) / static_cast<float>(viewHeight_);
-
-    //float viewW = 1000.f;
-    //float viewH = 600.f;
-    //float posX = 0;
-    //float posY = 0;
-
-    //// 2. So sánh để tạo hiệu ứng Letterbox (giữ tỷ lệ 16:10 hoặc tỷ lệ Hiếu chọn)
-    //if (windowAspectRatio > targetAspectRatio) {
-    //    viewW = viewH * windowAspectRatio;
-    //    posX = (viewW - 1000.f) / 2.f;
-    //}
-    //else {
-    //    viewH = viewW / windowAspectRatio;
-    //    posY = (viewH - 600.f) / 2.f;
-    //}
-
-    //// Cập nhật scale cho các tọa độ logic
-    //scaleX_ = static_cast<float>(viewWidth_) / viewW;
-    //scaleY_ = static_cast<float>(viewHeight_) / viewH;
 }
 
 sf::Vector2f Game_Render::worldToScreen(sf::Vector2f world) const {
@@ -1150,55 +1031,6 @@ void Game_Render::drawUI(sf::RenderWindow& window) {
 	window.draw(iconOptionsSprite_);
 }
 
-//void Game_Render::drawUI(sf::RenderWindow& window) {
-//    if (!state_) return;
-//    sf::Font font;
-//    if (!font.openFromFile("C:/Windows/Fonts/arial.ttf")) return;
-//
-//    std::string scoreStr = std::to_string(state_->getScore1()) + " - " + std::to_string(state_->getScore2());
-//    sf::Text scoreText(font, scoreStr, 36);
-//    scoreText.setPosition({ FIELD_WIDTH / 2.f - 40.f, 15.f });
-//    scoreText.setFillColor(sf::Color::White);
-//    scoreText.setOutlineColor(sf::Color::Black);
-//    scoreText.setOutlineThickness(1.f);
-//    window.draw(scoreText);
-//
-//    std::string turnStr = (state_->getCurrentTurn() == Team::Team1) ? "Luot: Doi 1" : "Luot: Doi 2";
-//    sf::Text turnText(font, turnStr, 20);
-//    turnText.setPosition({ 10.f, 10.f });
-//    turnText.setFillColor(sf::Color::White);
-//    window.draw(turnText);
-//}
-
-//void Game_Render::drawMenu(sf::RenderWindow& window) {
-//    sf::Font font;
-//    if (!font.openFromFile("C:/Windows/Fonts/arial.ttf")) return;
-//    sf::Text title(font, "SOCCER POOL", 48);
-//    title.setPosition({ FIELD_WIDTH / 2.f - 120.f, 80.f });
-//    title.setFillColor(sf::Color::White);
-//    window.draw(title);
-//
-//    sf::Text t1(font, "1. Nguoi vs Nguoi",  24);
-//    t1.setPosition({ FIELD_WIDTH / 2.f - 100.f, 200.f });
-//    t1.setFillColor(sf::Color::White);
-//    window.draw(t1);
-//    sf::Text t2(font, "2. Nguoi vs May (De)",  24);
-//    t2.setPosition({ FIELD_WIDTH / 2.f - 100.f, 240.f });
-//    t2.setFillColor(sf::Color::White);
-//    window.draw(t2);
-//    sf::Text t3(font, "3. Nguoi vs May (TB)",  24);
-//    t3.setPosition({ FIELD_WIDTH / 2.f - 100.f, 280.f });
-//    t3.setFillColor(sf::Color::White);
-//    window.draw(t3);
-//    sf::Text t4(font, "4. Nguoi vs May (Kho)",  24);
-//    t4.setPosition({ FIELD_WIDTH / 2.f - 100.f, 320.f });
-//    t4.setFillColor(sf::Color::White);
-//    window.draw(t4);
-//    sf::Text t5(font,"5. May vs May", 24);
-//    t5.setPosition({ FIELD_WIDTH / 2.f - 100.f, 360.f });
-//    t5.setFillColor(sf::Color::White);
-//    window.draw(t5);
-//}
 
 void Game_Render::drawGameOver(sf::RenderWindow& window) {
     // 1. Tính toán tiến độ chạy của animation
@@ -1281,13 +1113,6 @@ void Game_Render::drawGameOver(sf::RenderWindow& window) {
     }
 }
 
-//void Game_Render::drawDragIndicator(sf::RenderWindow& window, sf::Vector2f from, sf::Vector2f to) {
-//    sf::Vertex line[] = {
-//        sf::Vertex({from, sf::Color(255, 255, 0)}),
-//        sf::Vertex({to, sf::Color(255, 200, 0)})
-//    };
-//    window.draw(line, 2, sf::PrimitiveType::Lines);
-//}
 
 void Game_Render::setDragState(sf::Vector2f from, sf::Vector2f to, sf::Vector2f piecePos, sf::Vector2f directionUnit) {
     dragActive_ = true;
@@ -1297,31 +1122,6 @@ void Game_Render::setDragState(sf::Vector2f from, sf::Vector2f to, sf::Vector2f 
     dragDir_ = directionUnit;
 }
 
-//void Game_Render::drawDirectionArrow(sf::RenderWindow& window, sf::Vector2f piecePos, sf::Vector2f directionUnit, float length) {
-//    const float arrowHeadLen = 28.f;
-//    const float arrowHeadW = 14.f;
-//    sf::Vector2f tip = sf::Vector2f(piecePos.x + directionUnit.x * length, piecePos.y + directionUnit.y * length);
-//    sf::Vertex line[] = {
-//        sf::Vertex({piecePos, sf::Color(255, 255, 0)}),
-//        sf::Vertex({tip, sf::Color(255, 220, 0)})
-//    };
-//    window.draw(line, 2, sf::PrimitiveType::Lines);
-//    float perpX = -directionUnit.y, perpY = directionUnit.x;
-//    sf::Vector2f back = sf::Vector2f(
-//        tip.x - directionUnit.x * arrowHeadLen + perpX * arrowHeadW,
-//        tip.y - directionUnit.y * arrowHeadLen + perpY * arrowHeadW
-//    );
-//    sf::Vector2f back2 = sf::Vector2f(
-//        tip.x - directionUnit.x * arrowHeadLen - perpX * arrowHeadW,
-//        tip.y - directionUnit.y * arrowHeadLen - perpY * arrowHeadW
-//    );
-//    sf::Vertex head[] = {
-//        sf::Vertex({tip, sf::Color(255, 220, 0)}),
-//        sf::Vertex({back, sf::Color(255, 220, 0)}),
-//        sf::Vertex({back2, sf::Color(255, 220, 0)})
-//    };
-//    window.draw(head, 3, sf::PrimitiveType::Triangles);
-//}
 
 // Cài đặt hàm vẽ đường ngắm sút
 void Game_Render::drawShotAiming(sf::RenderWindow& window) {
@@ -1582,9 +1382,9 @@ void Game_Render::drawMainMenu(sf::RenderWindow& window) {
     applyHoverEffect(iconQuitSprite_, { { 925.f, 25.f }, {50.f, 50.f}}, mPos, sQuit);
     window.draw(iconQuitSprite_);
 
-    float sInfo = 40.f / iconInforTexture_.getSize().x;
-    applyHoverEffect(iconInforSprite_, {{ 880.f, 30.f }, { 40.f, 40.f }}, mPos, sInfo);
-    window.draw(iconInforSprite_);
+    //float sInfo = 40.f / iconInforTexture_.getSize().x;
+    //applyHoverEffect(iconInforSprite_, {{ 880.f, 30.f }, { 40.f, 40.f }}, mPos, sInfo);
+    //window.draw(iconInforSprite_);
 
     sf::Font titleFont;
     if (!titleFont.openFromFile("assets/font/GulfsDisplay-SemiCondensed.ttf")) { // Đường dẫn font mới

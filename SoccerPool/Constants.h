@@ -57,8 +57,6 @@ using Formation = std::vector<int>; //Đây là hàm giúp sắp xếp đội h�
 
 inline Formation getFormation(int lineUp) {
     switch (lineUp) {
-        //case 2: return {1, 1};
-        //case 3: return {1, 2};
         case 1: return {1, 1, 3};
         case 0: return {1, 2, 2};
         case 2: return {1,2,1,1 };//eagle
@@ -95,10 +93,6 @@ const sf::Vector2f SB_OFFSET_TIME = { 0.f,   2.f }; // Ô chữ nhật giữa
 const unsigned int SB_FONT_SIZE_SCORE = 22;
 const unsigned int SB_FONT_SIZE_TIME = 18;
 
-// THÊM CÁC ENUM QUẢN LÝ MÀN HÌNH
-//enum class GameMode { PvP, PvAI, AIvsAI };
-//enum class GamePhase { MainMenu, SelectMode, Playing, GoalScored, GameOver };
-//enum class AIDifficulty { Easy, Medium, Hard };
 
 const float CORNER_RADIUS = 28.f;
 
